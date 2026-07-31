@@ -176,8 +176,8 @@
             font-size: 0.95rem;
             margin-top: 4px;
         }
-        .chance-up { color: var(--win); }
-        .chance-down { color: var(--lose); }
+        .chance-up { color: var(--win); font-weight: bold; }
+        .chance-down { color: var(--lose); font-weight: bold; }
 
         .action-area {
             background: var(--panel);
@@ -395,7 +395,6 @@
 
         const conditions = ["Wrecked", "Normal wear", "Mint"];
         
-        // Multiplier Pools designed for ~96% RTP
         const potentialTiers = [
             { id: 0, name: "Normal Win", class: "pot-0", winChance: 0.60, pool: [{m: 1.1, c: 60}, {m: 2, c: 35}, {m: 5, c: 5}] },
             { id: 1, name: "Big Win", class: "pot-1", winChance: 0.40, pool: [{m: 1.2, c: 80}, {m: 3, c: 12}, {m: 10, c: 6}, {m: 25, c: 2}] },
@@ -403,32 +402,31 @@
             { id: 3, name: "INSANE WIN", class: "pot-3", winChance: 0.10, pool: [{m: 1.2, c: 88}, {m: 10, c: 9}, {m: 100, c: 2.5}, {m: 1000, c: 0.5}] }
         ];
 
-        // Flavor Messages for Mechanics
+        // Remade messages without any percentages 
         const repairEvents = {
             fail: [
-                "💥 Mechanic broke a leg mid-repair! Engine ruined (-15% Sell Chance).",
-                "🤦 Mechanic dropped your engine block! Severe damage (-15% Sell Chance).",
-                "🎰 Mechanic gambled your money away and damaged parts (-15% Sell Chance).",
-                "⚡ Mechanic wired the battery backwards and fried electronics (-15% Sell Chance)!"
+                "💥 Mechanic broke a leg mid-repair! Engine ruined (Severe Demotion to Sell Chance).",
+                "🤦 Mechanic dropped your engine block! Severe damage (Demotion to Sell Chance).",
+                "🎰 Mechanic gambled your money away and damaged parts (Demotion to Sell Chance).",
+                "⚡ Mechanic wired the battery backwards and fried electronics (Demotion to Sell Chance)!"
             ],
             shoddy: [
-                "🍺 Mechanic was hungover, but duct-taped the bumper (+5% Sell Chance, +1 Tier).",
-                "🌾 Mechanic used parts from an old lawnmower (+5% Sell Chance, +1 Tier).",
-                "🛠️ Mechanic patched the leak with chewing gum (+5% Sell Chance, +1 Tier)."
+                "🍺 Mechanic was hungover, but duct-taped the bumper (Minor Boost to Sell Chance, +1 Tier).",
+                "🌾 Mechanic used parts from an old lawnmower (Minor Boost to Sell Chance, +1 Tier).",
+                "🛠️ Mechanic patched the leak with chewing gum (Minor Boost to Sell Chance, +1 Tier)."
             ],
             success: [
-                "✨ Mechanic worked overtime and restored it clean (+15% Sell Chance, +2 Tiers)!",
-                "🏎️ Mechanic tuned the engine to factory perfection (+15% Sell Chance, +2 Tiers)!",
-                "🧼 Mechanic buffed out every scratch till it shined (+15% Sell Chance, +2 Tiers)!"
+                "✨ Mechanic worked overtime and restored it clean (Great Upgrade to Sell Chance, +2 Tiers)!",
+                "🏎️ Mechanic tuned the engine to factory perfection (Great Upgrade to Sell Chance, +2 Tiers)!",
+                "🧼 Mechanic buffed out every scratch till it shined (Great Upgrade to Sell Chance, +2 Tiers)!"
             ],
             jackpot: [
-                "🎂 Mechanic gave you a free twin-turbo upgrade (+30% Sell Chance, INSANE TIER)!",
-                "🚀 Mechanic secretly installed a nitrous system (+30% Sell Chance, INSANE TIER)!",
-                "👑 Mechanic accidentally turned your car into a street legend (+30% Sell Chance, INSANE TIER)!"
+                "🎂 Mechanic gave you a free twin-turbo upgrade (Jackpot Tuning to Sell Chance, INSANE TIER)!",
+                "🚀 Mechanic secretly installed a nitrous system (Jackpot Tuning to Sell Chance, INSANE TIER)!",
+                "👑 Mechanic accidentally turned your car into a street legend (Jackpot Tuning to Sell Chance, INSANE TIER)!"
             ]
         };
 
-        // 20 Funny Loss / Failure Explanations
         const failureMessages = [
             "Nobody needed the car, so it got scrapped!",
             "The car got stolen by Santa Claus and his crew!",
@@ -457,7 +455,6 @@
         let activeCar = null;
         let lastRepairBanner = null;
 
-        // 8-bit SVG Generator Function
         function getCarPixelArtSVG(tier, condition, width = 80, height = 50) {
             let baseColor = "#3742fa";
             let windowColor = "#70a1ff";
@@ -557,7 +554,6 @@
             return arr[Math.floor(Math.random() * arr.length)];
         }
 
-        // Shortcut to get one of the 20 hilarious failure scenarios
         function getRandomFailureReason() {
             return getRandomMsg(failureMessages);
         }
@@ -585,10 +581,16 @@
             requestAnimationFrame(step);
         }
 
-        function getEffectiveSellChance(car) {
+        // Replaced percentage numbers with qualitative rating adjectives
+        function getSellChanceRatingLabel(car) {
             let pTier = potentialTiers[car.tierLevel];
-            let effective = pTier.winChance + car.winChanceBonus;
-            return Math.round(Math.max(0.05, Math.min(0.95, effective)) * 100);
+            let rawChance = pTier.winChance + car.winChanceBonus;
+            
+            if (rawChance <= 0.20) return '<span style="color:#ff4757;">🔴 Terrible Chance</span>';
+            if (rawChance <= 0.40) return '<span style="color:#ffa502;"> 🟠 Poor Chance</span>';
+            if (rawChance <= 0.60) return '<span style="color:#ffd700;">🟡 Fair Chance</span>';
+            if (rawChance <= 0.80) return '<span style="color:#2ed573;">🟢 Good Chance</span>';
+            return '<span style="color:#66fcf1; text-shadow: 0 0 6px var(--accent-dark);">👑 Excellent Chance</span>';
         }
 
         function simulateGameLoad() {
@@ -645,7 +647,7 @@
                 currentOffers.push(car);
 
                 let pTier = potentialTiers[car.tierLevel];
-                let sellChancePct = getEffectiveSellChance(car);
+                let sellChanceLabel = getSellChanceRatingLabel(car);
 
                 gridHTML += `
                     <div class="car-card" onclick="selectCar(${i})">
@@ -657,7 +659,7 @@
                         <p style="color:#aaa; margin:2px 0;">Condition: <span style="color:white;">${car.condition}</span></p>
                         <p style="color:#aaa; margin:2px 0;">Price: <span style="color:white;">${formatCurrency(car.price)}</span></p>
                         <div class="pot-badge ${pTier.class}">Potential: ${pTier.name}</div>
-                        <div class="sell-chance-badge">Sell Chance: ${sellChancePct}%</div>
+                        <div class="sell-chance-badge">Sell Prospect: ${sellChanceLabel}</div>
                     </div>
                 `;
             }
@@ -686,13 +688,13 @@
             document.getElementById("actionCarIcon").innerHTML = getCarPixelArtSVG(activeCar.tier, activeCar.condition, 120, 75);
             
             let pTier = potentialTiers[activeCar.tierLevel];
-            let sellChancePct = getEffectiveSellChance(activeCar);
+            let sellChanceLabel = getSellChanceRatingLabel(activeCar);
 
             let bonusText = "";
             if (activeCar.winChanceBonus > 0) {
-                bonusText = `<span class="chance-up">(+${Math.round(activeCar.winChanceBonus * 100)}% Bonus)</span>`;
+                bonusText = `<span class="chance-up">(Chance Upgraded)</span>`;
             } else if (activeCar.winChanceBonus < 0) {
-                bonusText = `<span class="chance-down">(${Math.round(activeCar.winChanceBonus * 100)}% Penalty)</span>`;
+                bonusText = `<span class="chance-down">(Chance Degraded)</span>`;
             }
 
             let fixCost = 0;
@@ -708,7 +710,7 @@
                 <p>Initial Investment: <strong>${formatCurrency(activeCar.invested)}</strong></p>
                 <p>Condition: <strong>${activeCar.condition}</strong></p>
                 <div class="pot-badge ${pTier.class}" style="font-size:1.1rem;">Potential: ${pTier.name}</div>
-                <p style="font-size: 1.1rem;">Sell Success Chance: <strong>${sellChancePct}%</strong> ${bonusText}</p>
+                <p style="font-size: 1.1rem;">Market Sell Rating: <strong>${sellChanceLabel}</strong> ${bonusText}</p>
             `;
 
             let bannerEl = document.getElementById("repair-result-banner");
@@ -724,7 +726,7 @@
                 html += `
                     <div style="background: rgba(255,215,0,0.1); padding: 15px; border-radius: 8px; margin-top: 15px; border: 1px dashed var(--gold);">
                         <p style="margin:0 0 5px 0; color: var(--gold);"><strong>Repair Shop Gamble:</strong></p>
-                        <p style="margin:0; font-size: 0.95rem;">Pay ${formatCurrency(fixCost)} to fix the car! Success boosts your Sell Chance (+15%) and Potential Tier. Botched work reduces Sell Chance (-15%).</p>
+                        <p style="margin:0; font-size: 0.95rem;">Pay ${formatCurrency(fixCost)} to fix the car! Success significantly improves your market evaluation and potential payout tier. Botched work degrades your status.</p>
                     </div>
                 `;
                 document.getElementById("btnFix").style.display = "inline-block";
@@ -796,7 +798,7 @@
             let effectiveWinChance = Math.max(0.05, Math.min(0.95, pTier.winChance + car.winChanceBonus));
 
             let roll = Math.random();
-            if (roll > effectiveWinChance) return 0; // Lost!
+            if (roll > effectiveWinChance) return 0; 
 
             let multRoll = Math.random() * 100;
             let cumulative = 0;
@@ -841,7 +843,6 @@
                 multEl.style.display = "block";
 
                 if (finalMult === 0) {
-                    // Update: Dynamic chaotic failure messages instead of generic impoundment
                     statusEl.innerText = getRandomFailureReason();
                     statusEl.classList.remove("pulsing");
                     multEl.innerText = "0.00x";
