@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Car Flipping Simulator - Anticipation Update</title>
+    <title>Car Flipping Simulator - Slot Mechanics Update</title>
     <style>
         * { box-sizing: border-box; }
         :root {
@@ -117,18 +117,17 @@
         }
         h2 { color: white; font-size: 1.3rem; margin: 5px 0 10px 0;}
         
-        .car-carousel {
-            display: flex;
-            overflow-x: auto;
+        /* --- 2x2 MOBILE / 1x4 DESKTOP GRID --- */
+        .car-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
             gap: 12px; 
-            padding: 10px 20px 20px 20px;
-            scroll-snap-type: x mandatory;
-            -webkit-overflow-scrolling: touch;
+            padding: 10px 15px 20px 15px;
             width: 100%;
         }
-        .car-carousel::-webkit-scrollbar { height: 6px; }
-        .car-carousel::-webkit-scrollbar-track { background: #111; border-radius: 3px; }
-        .car-carousel::-webkit-scrollbar-thumb { background: var(--accent-dark); border-radius: 3px; }
+        @media (min-width: 600px) {
+            .car-grid { grid-template-columns: repeat(4, 1fr); }
+        }
 
         .car-card {
             background: var(--panel);
@@ -142,16 +141,15 @@
             align-items: center;
             justify-content: flex-start;
             gap: 10px;
-            flex: 0 0 170px; 
-            min-height: 260px; 
-            scroll-snap-align: center;
+            min-height: 200px; 
             -webkit-tap-highlight-color: transparent;
+            transition: 0.2s transform;
         }
-        .car-card:active { transform: scale(0.98); border-color: var(--accent); }
+        .car-card:active { transform: scale(0.96); border-color: var(--accent); }
         .car-card h3 { 
             margin: 15px 0 0 0; 
             color: white; 
-            font-size: 1rem; 
+            font-size: 0.95rem; 
             text-align: center;
             line-height: 1.2;
             min-height: 2.4rem; 
@@ -176,7 +174,7 @@
             align-items: center;
             gap: 4px;
             width: 100%;
-            margin: 5px 0;
+            margin: 5px 0 0 0;
             font-size: 0.85rem;
             color: #aaa;
         }
@@ -194,21 +192,6 @@
         .tier-cheap { background: #747d8c; color: white; }
         .tier-normal { background: #3742fa; color: white; }
         .tier-luxury { background: var(--gold); color: black; }
-
-        .pot-badge {
-            display: inline-block;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-weight: bold;
-            font-size: 0.75rem;
-            margin: 0;
-            border: 1px solid currentColor;
-            text-transform: uppercase;
-        }
-        .pot-0 { color: #a4b0be; } 
-        .pot-1 { color: #3498db; } 
-        .pot-2 { color: #9b59b6; } 
-        .pot-3 { color: #ff4757; text-shadow: 0 0 8px rgba(255,71,87,0.5); font-weight: 900;}
 
         .action-area {
             background: var(--panel);
@@ -309,15 +292,6 @@
         
         .coins-won { font-size: 1rem; color: #aaa; margin-bottom: 20px; height: 20px; }
         .coins-won span { color: var(--gold); font-weight: bold; }
-        
-        .swipe-hint {
-            font-size: 0.8rem;
-            color: #888;
-            margin-top: -5px;
-            margin-bottom: 10px;
-            font-style: italic;
-            animation: pulse 2s infinite;
-        }
 
         @keyframes pulse { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
         @keyframes spin { 100% { transform: rotate(360deg); } }
@@ -372,9 +346,7 @@
     <div class="container">
         <div id="selectionPhase">
             <h2 id="phaseTitle">Select a Car to Flip</h2>
-            <div class="swipe-hint">Swipe left for endless deals ➔</div>
-            
-            <div class="car-carousel" id="carGrid"></div>
+            <div class="car-grid" id="carGrid"></div>
         </div>
 
         <div class="action-area" id="actionArea">
@@ -438,12 +410,12 @@
 
         const conditions = ["Wrecked", "Normal wear", "Mint"];
         
-        // --- 95% RTP MATH MODEL (100x Cap) ---
+        // --- 95% RTP MATH MODEL ---
         const potentialTiers = [
-            { id: 0, name: "Normal Win", class: "pot-0", winChance: 0.82, pool: [{min: 1.01, max: 1.15, c: 85}, {min: 1.16, max: 1.50, c: 10}, {min: 1.51, max: 2.50, c: 5}] },
-            { id: 1, name: "Big Win", class: "pot-1", winChance: 0.63, pool: [{min: 1.01, max: 1.30, c: 75}, {min: 1.31, max: 2.50, c: 18}, {min: 2.51, max: 5.00, c: 6}, {min: 5.01, max: 10.00, c: 1}] },
-            { id: 2, name: "Huge Win", class: "pot-2", winChance: 0.40, pool: [{min: 1.05, max: 1.50, c: 70}, {min: 1.51, max: 4.00, c: 20}, {min: 4.01, max: 10.00, c: 8}, {min: 10.01, max: 25.00, c: 2}] },
-            { id: 3, name: "INSANE WIN", class: "pot-3", winChance: 0.18, pool: [{min: 1.05, max: 2.00, c: 65}, {min: 2.01, max: 6.00, c: 22}, {min: 6.01, max: 25.00, c: 10}, {min: 25.01, max: 100.00, c: 3}] }
+            { id: 0, name: "Normal Win", winChance: 0.82, pool: [{min: 1.01, max: 1.15, c: 85}, {min: 1.16, max: 1.50, c: 10}, {min: 1.51, max: 2.50, c: 5}] },
+            { id: 1, name: "Big Win", winChance: 0.63, pool: [{min: 1.01, max: 1.30, c: 75}, {min: 1.31, max: 2.50, c: 18}, {min: 2.51, max: 5.00, c: 6}, {min: 5.01, max: 10.00, c: 1}] },
+            { id: 2, name: "Huge Win", winChance: 0.40, pool: [{min: 1.05, max: 1.50, c: 70}, {min: 1.51, max: 4.00, c: 20}, {min: 4.01, max: 10.00, c: 8}, {min: 10.01, max: 25.00, c: 2}] },
+            { id: 3, name: "INSANE WIN", winChance: 0.18, pool: [{min: 1.05, max: 2.00, c: 65}, {min: 2.01, max: 6.00, c: 22}, {min: 6.01, max: 25.00, c: 10}, {min: 25.01, max: 100.00, c: 3}] }
         ];
 
         const repairEvents = {
@@ -499,6 +471,7 @@
         let lastRepairBanner = null;
         let isSkipping = false;
         let currentFinalMult = 0;
+        let roundCount = 0; 
 
         function getCarPixelArtSVG(tier, condition, width = 80, height = 50) {
             let baseColor = "#3742fa";
@@ -626,16 +599,43 @@
             requestAnimationFrame(step);
         }
 
+        // Logic to weigh car appearances like slot symbols
+        function getRandomCarTemplate(allowLuxury) {
+            let roll = Math.random();
+            let targetTier = "cheap";
+
+            if (allowLuxury) {
+                if (roll < 0.65) targetTier = "cheap";
+                else if (roll < 0.90) targetTier = "normal";
+                else targetTier = "luxury";
+            } else {
+                if (roll < 0.70) targetTier = "cheap";
+                else targetTier = "normal";
+            }
+
+            let validCars = fleet.filter(c => c.tier === targetTier);
+            return validCars[Math.floor(Math.random() * validCars.length)];
+        }
+
         function loadMoreCars(count) {
             let grid = document.getElementById("carGrid");
             let newHTML = "";
+            let allowLuxury = roundCount > 1; 
+
             for (let i = 0; i < count; i++) {
                 let index = currentOffers.length;
-                let carTemplate = fleet[randomInt(0, fleet.length - 1)];
+                let carTemplate = getRandomCarTemplate(allowLuxury);
                 let condition = conditions[randomInt(0, 2)];
                 
-                let baseTier = condition === "Wrecked" ? 0 : (condition === "Normal wear" ? 1 : 2);
-                let finalTier = Math.min(3, Math.max(0, baseTier + randomInt(-1, 1)));
+                // Intrinsic tier based strictly on Rarity and Condition
+                let baseTierLevel = 0;
+                if (carTemplate.tier === "cheap") baseTierLevel = 0;
+                else if (carTemplate.tier === "normal") baseTierLevel = 1;
+                else if (carTemplate.tier === "luxury") baseTierLevel = 2;
+
+                let finalTier = baseTierLevel;
+                if (condition === "Wrecked") finalTier = Math.max(0, baseTierLevel - 1);
+                if (condition === "Mint") finalTier = Math.min(3, baseTierLevel + 1);
 
                 let priceMod = condition === "Wrecked" ? 0.6 : (condition === "Mint" ? 1.4 : 1.0);
                 let finalPrice = Math.max(1, Math.floor(carTemplate.basePrice * priceMod));
@@ -651,8 +651,7 @@
                 };
                 currentOffers.push(car);
 
-                let pTier = potentialTiers[car.tierLevel];
-
+                // Notice: No potential badge rendered on the card!
                 newHTML += `
                     <div class="car-card" onclick="selectCar(${index})">
                         <div class="tier-badge tier-${car.tier}">${car.tier}</div>
@@ -661,24 +660,14 @@
                             ${getCarPixelArtSVG(car.tier, car.condition, 90, 50)}
                         </div>
                         <div class="car-info-row">
-                            <div>Cond: <span>${car.condition}</span></div>
+                            <div>Cond: <span style="color:white;">${car.condition}</span></div>
                             <div>Price: <span style="color:var(--gold)">${formatCurrency(car.price)}</span></div>
                         </div>
-                        <div class="pot-badge ${pTier.class}">${pTier.name}</div>
                     </div>
                 `;
             }
-            grid.insertAdjacentHTML('beforeend', newHTML);
+            grid.innerHTML = newHTML; 
         }
-
-        document.addEventListener("DOMContentLoaded", () => {
-            const grid = document.getElementById("carGrid");
-            grid.addEventListener("scroll", () => {
-                if (grid.scrollWidth - grid.scrollLeft - grid.clientWidth < 100) {
-                    loadMoreCars(3);
-                }
-            });
-        });
 
         function simulateGameLoad() {
             const globalLoader = document.getElementById("global-loader");
@@ -701,6 +690,7 @@
         }
 
         function startRound() {
+            roundCount++;
             document.getElementById("selectionPhase").style.display = "block";
             document.getElementById("actionArea").style.display = "none";
             document.getElementById("result-area").style.display = "none";
@@ -709,11 +699,8 @@
             lastRepairBanner = null;
             currentOffers = [];
             
-            let grid = document.getElementById("carGrid");
-            grid.innerHTML = "";
-            
-            loadMoreCars(5);
-            grid.scrollLeft = 0;
+            // Force strictly 4 choices per round
+            loadMoreCars(4);
         }
 
         function selectCar(index) {
@@ -735,8 +722,6 @@
         function updateActionArea() {
             document.getElementById("selectedCarName").innerText = activeCar.name;
             document.getElementById("actionCarIcon").innerHTML = getCarPixelArtSVG(activeCar.tier, activeCar.condition, 100, 60);
-            
-            let pTier = potentialTiers[activeCar.tierLevel];
 
             let fixCost = 0;
             let canFix = !activeCar.isFixed && activeCar.condition !== "Mint" && activeCar.condition !== "Tuned Beast";
@@ -747,12 +732,12 @@
                 fixCost = Math.floor(activeCar.price * 0.50); 
             }
 
+            // Notice: No potential badge rendered here either!
             let html = `
-                <div class="car-info-row" style="margin-bottom: 10px;">
-                    <div>Invested: <span>${formatCurrency(activeCar.invested)}</span></div>
-                    <div>Cond: <span>${activeCar.condition}</span></div>
+                <div class="car-info-row" style="margin-bottom: 10px; font-size: 0.95rem;">
+                    <div>Total Invested: <span style="color:var(--gold); font-size: 1.1rem;">${formatCurrency(activeCar.invested)}</span></div>
+                    <div>Current Condition: <span style="color:white;">${activeCar.condition}</span></div>
                 </div>
-                <div class="pot-badge ${pTier.class}" style="font-size:1rem;">Potential: ${pTier.name}</div>
             `;
 
             let bannerEl = document.getElementById("repair-result-banner");
@@ -768,7 +753,7 @@
                 html += `
                     <div style="background: rgba(255,215,0,0.1); padding: 12px; border-radius: 6px; margin-top: 15px; border: 1px dashed var(--gold);">
                         <p style="margin:0 0 5px 0; color: var(--gold); font-size: 0.9rem;"><strong>Repair Shop Gamble:</strong></p>
-                        <p style="margin:0; font-size: 0.85rem; color: #ccc;">Pay ${formatCurrency(fixCost)} to fix! Success greatly improves market odds. Botched work degrades it.</p>
+                        <p style="margin:0; font-size: 0.85rem; color: #ccc;">Pay ${formatCurrency(fixCost)} to roll for a condition upgrade!</p>
                     </div>
                 `;
                 document.getElementById("btnFix").style.display = "block";
@@ -801,7 +786,6 @@
 
             let repairBar = document.getElementById("repairProgressBar");
 
-            // Reduced repair time to 1 second
             animateProgressBar(repairBar, 1000, () => {
                 let roll = Math.random();
                 if (roll <= 0.15) {
@@ -876,12 +860,11 @@
             statusEl.style.color = "var(--accent)";
             searchAnim.style.display = "block";
             sellProgContainer.style.display = "block";
-            skipBtn.style.display = "block"; // Show skip button
+            skipBtn.style.display = "block"; 
 
             currentFinalMult = rollMultiplier(activeCar);
             isSkipping = false;
 
-            // Determine anticipation stages
             let maxStage = 1;
             if (currentFinalMult === 0) maxStage = 1;
             else if (currentFinalMult <= 2) maxStage = 2;
@@ -910,7 +893,7 @@
             let durationMs = 1000;
             
             function step(timestamp) {
-                if (isSkipping) return; // Halt animation instantly if skipped
+                if (isSkipping) return;
                 if (!start) start = timestamp;
                 let progress = timestamp - start;
                 let pct = Math.min(100, (progress / durationMs) * 100);
