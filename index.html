@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Car Flipping Simulator - Balanced Edition</title>
+    <title>Car Flipping Simulator - Horizontal UI</title>
     <style>
         * { box-sizing: border-box; }
         :root {
@@ -113,26 +113,37 @@
             width: 100%;
             max-width: 800px;
             text-align: center;
-            padding: 15px;
+            padding: 15px 0; /* Removed side padding for edge-to-edge scroll */
         }
-        h2 { color: white; font-size: 1.3rem; margin: 5px 0 15px 0;}
+        h2 { color: white; font-size: 1.3rem; margin: 5px 0 10px 0;}
         
-        .car-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        /* --- HORIZONTAL CAROUSEL --- */
+        .car-carousel {
+            display: flex;
+            overflow-x: auto;
             gap: 15px;
+            padding: 10px 15px 20px 15px;
+            scroll-snap-type: x mandatory;
+            -webkit-overflow-scrolling: touch;
+            width: 100%;
         }
+        .car-carousel::-webkit-scrollbar { height: 6px; }
+        .car-carousel::-webkit-scrollbar-track { background: #111; border-radius: 3px; }
+        .car-carousel::-webkit-scrollbar-thumb { background: var(--accent-dark); border-radius: 3px; }
+
         .car-card {
             background: var(--panel);
             padding: 15px;
             border-radius: 10px;
             border: 2px solid #333;
             cursor: pointer;
-            transition: 0.2s all;
             position: relative;
             display: flex;
             flex-direction: column;
             align-items: center;
+            flex: 0 0 80%; /* Takes up 80% of screen width */
+            max-width: 260px;
+            scroll-snap-align: center;
             -webkit-tap-highlight-color: transparent;
         }
         .car-card:active { transform: scale(0.98); border-color: var(--accent); }
@@ -196,7 +207,7 @@
             background: var(--panel);
             padding: 20px 15px;
             border-radius: 10px;
-            margin-top: 10px;
+            margin: 10px 15px;
             display: none;
             border: 1px solid #444;
             position: relative;
@@ -208,9 +219,11 @@
             gap: 10px; 
             margin-top: 20px; 
         }
-        .btn-sell, .btn-fix { width: 100%; padding: 12px; font-size: 0.95rem; }
+        .btn-sell, .btn-fix, .btn-cancel { width: 100%; padding: 12px; font-size: 0.95rem; }
         .btn-sell { background: var(--win); color: white; }
         .btn-fix { background: var(--gold); color: black; }
+        .btn-cancel { background: transparent; border: 1px solid #555; color: #ccc; }
+        .btn-cancel:hover { background: #333; }
 
         .progress-container {
             width: 100%;
@@ -259,7 +272,7 @@
 
         #result-area {
             display: none;
-            margin-top: 15px;
+            margin: 15px;
             padding: 25px 15px;
             background: radial-gradient(circle, var(--panel) 0%, var(--bg) 100%);
             border-radius: 10px;
@@ -286,6 +299,14 @@
         .coins-won { font-size: 1rem; color: #aaa; margin-bottom: 20px; height: 20px; }
         .coins-won span { color: var(--gold); font-weight: bold; }
         
+        .swipe-hint {
+            font-size: 0.8rem;
+            color: #888;
+            margin-top: -5px;
+            margin-bottom: 10px;
+            font-style: italic;
+        }
+
         @keyframes pulse { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
         .pulsing { animation: pulse 1s infinite; }
         @keyframes spin { 100% { transform: rotate(360deg); } }
@@ -333,14 +354,21 @@
     </div>
 
     <header>
-        <div class="balance">Bal: $<span id="balanceDisplay">10,000</span></div>
-        <button onclick="topUp()">+ $5,000</button>
+        <div class="balance">Bal: $<span id="balanceDisplay">1,500</span></div>
+        <button onclick="topUp()">+ $1,000</button>
     </header>
 
     <div class="container">
-        <h2 id="phaseTitle">Select a Car to Flip</h2>
-        
-        <div class="car-grid" id="carGrid"></div>
+        <div id="selectionPhase">
+            <h2 id="phaseTitle">Select a Car to Flip</h2>
+            <div class="swipe-hint">Swipe horizontally to see all offers ➔</div>
+            
+            <div class="car-carousel" id="carGrid"></div>
+            
+            <div style="padding: 0 15px;">
+                <button class="btn-cancel" onclick="startRound()" style="width: 100%; padding: 12px; margin-top: 5px;">🔄 Refresh Fleet</button>
+            </div>
+        </div>
 
         <div class="action-area" id="actionArea">
             <div id="overlay-loader">
@@ -386,21 +414,21 @@
         </div>
     </div>
     <script>
+        // Updated prices ranging strictly from $1 to $10,000
         const fleet = [
-            { name: "Jonda Divic", tier: "cheap", basePrice: 200 },
-            { name: "Wolkswagen Holf", tier: "cheap", basePrice: 400 },
-            { name: "Qenault Uwingo", tier: "cheap", basePrice: 100 },
-            { name: "Voyota Damry", tier: "normal", basePrice: 2500 },
-            { name: "Jonda Bccord", tier: "normal", basePrice: 3000 },
-            { name: "Wolkswagen Qassat", tier: "normal", basePrice: 3500 },
-            { name: "Nercedes H-Wagon", tier: "luxury", basePrice: 30000 },
-            { name: "Gerrari E458", tier: "luxury", basePrice: 45000 },
-            { name: "Mamborghini Juracan", tier: "luxury", basePrice: 50000 }
+            { name: "Qenault Uwingo", tier: "cheap", basePrice: 2 },
+            { name: "Jonda Divic", tier: "cheap", basePrice: 15 },
+            { name: "Wolkswagen Holf", tier: "cheap", basePrice: 50 },
+            { name: "Voyota Damry", tier: "normal", basePrice: 250 },
+            { name: "Jonda Bccord", tier: "normal", basePrice: 600 },
+            { name: "Wolkswagen Qassat", tier: "normal", basePrice: 1200 },
+            { name: "Nercedes H-Wagon", tier: "luxury", basePrice: 4000 },
+            { name: "Gerrari E458", tier: "luxury", basePrice: 7500 },
+            { name: "Mamborghini Juracan", tier: "luxury", basePrice: 10000 }
         ];
 
         const conditions = ["Wrecked", "Normal wear", "Mint"];
         
-        // REBALANCED MATH: Win Chances increased drastically. Pool values lowered to heavily favor smaller hits.
         const potentialTiers = [
             { id: 0, name: "Normal Win", class: "pot-0", winChance: 0.85, pool: [{min: 1.01, max: 1.15, c: 90}, {min: 1.16, max: 2.00, c: 8}, {min: 2.01, max: 4.00, c: 2}] },
             { id: 1, name: "Big Win", class: "pot-1", winChance: 0.65, pool: [{min: 1.01, max: 1.20, c: 85}, {min: 1.21, max: 3.00, c: 10}, {min: 3.01, max: 10.00, c: 4}, {min: 10.01, max: 25.00, c: 1}] },
@@ -455,7 +483,7 @@
             "A local monster truck rally used your car as a ramp. Completely flattened!"
         ];
 
-        let balance = 10000;
+        let balance = 1500; // Adjusted starting balance for the new economy
         let currentOffers = [];
         let activeCar = null;
         let lastRepairBanner = null;
@@ -547,7 +575,7 @@
         }
 
         function topUp() {
-            balance += 5000;
+            balance += 1000;
             updateBalance();
         }
 
@@ -618,12 +646,10 @@
         }
 
         function startRound() {
+            document.getElementById("selectionPhase").style.display = "block";
             document.getElementById("actionArea").style.display = "none";
             document.getElementById("result-area").style.display = "none";
             document.getElementById("repair-result-banner").style.display = "none";
-            document.getElementById("carGrid").style.display = "grid";
-            document.getElementById("phaseTitle").style.display = "block";
-            document.getElementById("phaseTitle").innerText = "Select a Car to Flip";
             
             lastRepairBanner = null;
             currentOffers = [];
@@ -637,7 +663,8 @@
                 let finalTier = Math.min(3, Math.max(0, baseTier + randomInt(-1, 1)));
 
                 let priceMod = condition === "Wrecked" ? 0.6 : (condition === "Mint" ? 1.4 : 1.0);
-                let finalPrice = Math.floor(carTemplate.basePrice * priceMod);
+                // Math.max guarantees even the cheapest ruined car costs at least $1
+                let finalPrice = Math.max(1, Math.floor(carTemplate.basePrice * priceMod));
 
                 let car = {
                     ...carTemplate,
@@ -653,7 +680,6 @@
                 let pTier = potentialTiers[car.tierLevel];
                 let sellChanceLabel = getSellChanceRatingLabel(car);
 
-                // Compact layout for mobile cards
                 gridHTML += `
                     <div class="car-card" onclick="selectCar(${i})">
                         <div class="tier-badge tier-${car.tier}">Class: ${car.tier}</div>
@@ -663,7 +689,7 @@
                         </div>
                         <div class="car-info-row">
                             <div>Cond: <span>${car.condition}</span></div>
-                            <div>Price: <span>${formatCurrency(car.price)}</span></div>
+                            <div>Price: <span style="color:var(--gold)">${formatCurrency(car.price)}</span></div>
                         </div>
                         <div class="pot-badge ${pTier.class}">Potential: ${pTier.name}</div>
                         <div class="sell-chance-badge">Prospect: ${sellChanceLabel}</div>
@@ -671,6 +697,8 @@
                 `;
             }
             document.getElementById("carGrid").innerHTML = gridHTML;
+            // Scroll carousel back to start on refresh
+            document.getElementById("carGrid").scrollLeft = 0;
         }
 
         function selectCar(index) {
@@ -683,9 +711,8 @@
             balance -= activeCar.price;
             updateBalance();
 
-            document.getElementById("carGrid").style.display = "none";
+            document.getElementById("selectionPhase").style.display = "none";
             document.getElementById("actionArea").style.display = "block";
-            document.getElementById("phaseTitle").style.display = "none";
             
             updateActionArea();
         }
