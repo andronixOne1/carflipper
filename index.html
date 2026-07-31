@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Car Flipping Simulator - Mobile Optimized</title>
+    <title>Car Flipping Simulator - Dynamic Multipliers</title>
     <style>
         :root {
             --bg: #0b0c10;
@@ -20,13 +20,12 @@
             background-color: var(--bg);
             color: var(--text);
             margin: 0;
-            padding: 0 0 40px 0; /* Removed top padding for sticky header */
+            padding: 0 0 40px 0; 
             display: flex;
             flex-direction: column;
             align-items: center;
         }
 
-        /* --- GLOBAL LOADING SCREEN --- */
         #global-loader {
             position: fixed;
             top: 0; left: 0;
@@ -76,7 +75,6 @@
             animation: pulse 1s infinite;
         }
 
-        /* --- STICKY HEADER --- */
         header {
             width: 100%;
             max-width: 800px;
@@ -322,7 +320,6 @@
         @keyframes scrollUp { 0% { transform: translateY(50px); } 100% { transform: translateY(-50px); } }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* --- MOBILE SPECIFIC RESPONSIVENESS --- */
         @media (max-width: 600px) {
             header {
                 padding: 12px 15px;
@@ -427,11 +424,14 @@
 
         const conditions = ["Wrecked", "Normal wear", "Mint"];
         
+        // DYNAMIC MULTIPLIERS UPDATE:
+        // Instead of hardcoded 'm' values, each pool now has a 'min' and 'max'.
+        // The game will generate a random float between these bounds to provide limitless variations.
         const potentialTiers = [
-            { id: 0, name: "Normal Win", class: "pot-0", winChance: 0.60, pool: [{m: 1.1, c: 60}, {m: 2, c: 35}, {m: 5, c: 5}] },
-            { id: 1, name: "Big Win", class: "pot-1", winChance: 0.40, pool: [{m: 1.2, c: 80}, {m: 3, c: 12}, {m: 10, c: 6}, {m: 25, c: 2}] },
-            { id: 2, name: "Huge Win", class: "pot-2", winChance: 0.25, pool: [{m: 1.2, c: 84}, {m: 5, c: 10}, {m: 25, c: 5}, {m: 100, c: 1}] },
-            { id: 3, name: "INSANE WIN", class: "pot-3", winChance: 0.10, pool: [{m: 1.2, c: 88}, {m: 10, c: 9}, {m: 100, c: 2.5}, {m: 1000, c: 0.5}] }
+            { id: 0, name: "Normal Win", class: "pot-0", winChance: 0.60, pool: [{min: 1.01, max: 1.15, c: 60}, {min: 1.16, max: 2.50, c: 35}, {min: 2.51, max: 5.00, c: 5}] },
+            { id: 1, name: "Big Win", class: "pot-1", winChance: 0.40, pool: [{min: 1.01, max: 1.30, c: 80}, {min: 1.31, max: 5.00, c: 12}, {min: 5.01, max: 15.00, c: 6}, {min: 15.01, max: 25.00, c: 2}] },
+            { id: 2, name: "Huge Win", class: "pot-2", winChance: 0.25, pool: [{min: 1.01, max: 1.30, c: 84}, {min: 1.31, max: 10.00, c: 10}, {min: 10.01, max: 40.00, c: 5}, {min: 40.01, max: 100.00, c: 1}] },
+            { id: 3, name: "INSANE WIN", class: "pot-3", winChance: 0.10, pool: [{min: 1.01, max: 1.40, c: 85}, {min: 1.41, max: 20.00, c: 10}, {min: 20.01, max: 200.00, c: 4}, {min: 200.01, max: 1000.00, c: 1}] }
         ];
 
         const repairEvents = {
@@ -833,10 +833,12 @@
             for (let i = 0; i < pTier.pool.length; i++) {
                 cumulative += pTier.pool[i].c;
                 if (multRoll <= cumulative) {
-                    return pTier.pool[i].m;
+                    let range = pTier.pool[i];
+                    return Number((Math.random() * (range.max - range.min) + range.min).toFixed(2));
                 }
             }
-            return pTier.pool[pTier.pool.length - 1].m; 
+            let lastRange = pTier.pool[pTier.pool.length - 1];
+            return Number((Math.random() * (lastRange.max - lastRange.min) + lastRange.min).toFixed(2));
         }
 
         function startSellPhase() {
