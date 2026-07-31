@@ -191,8 +191,6 @@
         .action-buttons { display: flex; justify-content: center; gap: 15px; margin-top: 25px; }
         .btn-sell { background: var(--win); color: white; }
         .btn-fix { background: var(--gold); color: black; }
-        .btn-cancel { background: transparent; border: 1px solid #555; color: #ccc; }
-        .btn-cancel:hover { background: #333; }
 
         /* Progress Bar Styling */
         .progress-container {
@@ -315,6 +313,7 @@
 </head>
 <body>
 
+    <!-- GLOBAL LOADING SCREEN -->
     <div id="global-loader">
         <h1>Car Flip Simulator</h1>
         <div id="bootCarIcon"></div>
@@ -352,7 +351,6 @@
             <div class="action-buttons">
                 <button class="btn-fix" id="btnFix" onclick="fixCar()">Fix Car</button>
                 <button class="btn-sell" id="btnSell" onclick="startSellPhase()">Sell As Is</button>
-                <button class="btn-cancel" id="btnCancel" onclick="startRound()">Cancel</button>
             </div>
         </div>
 
@@ -402,7 +400,6 @@
             { id: 3, name: "INSANE WIN", class: "pot-3", winChance: 0.10, pool: [{m: 1.2, c: 88}, {m: 10, c: 9}, {m: 100, c: 2.5}, {m: 1000, c: 0.5}] }
         ];
 
-        // Remade messages without any percentages 
         const repairEvents = {
             fail: [
                 "💥 Mechanic broke a leg mid-repair! Engine ruined (Severe Demotion to Sell Chance).",
@@ -581,7 +578,6 @@
             requestAnimationFrame(step);
         }
 
-        // Replaced percentage numbers with qualitative rating adjectives
         function getSellChanceRatingLabel(car) {
             let pTier = potentialTiers[car.tierLevel];
             let rawChance = pTier.winChance + car.winChanceBonus;
@@ -750,7 +746,6 @@
 
             document.getElementById("btnFix").disabled = true;
             document.getElementById("btnSell").disabled = true;
-            document.getElementById("btnCancel").disabled = true;
             document.getElementById("loaderCarIcon").innerHTML = getCarPixelArtSVG(activeCar.tier, activeCar.condition, 100, 60);
             document.getElementById("overlay-loader").style.display = "flex";
 
@@ -789,7 +784,6 @@
 
                 document.getElementById("overlay-loader").style.display = "none";
                 document.getElementById("btnSell").disabled = false;
-                document.getElementById("btnCancel").disabled = false;
             });
         }
 
