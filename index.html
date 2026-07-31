@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Car Flipping Simulator - Infinite Lot</title>
+    <title>Car Flipping Simulator - Vertical Cards</title>
     <style>
         * { box-sizing: border-box; }
         :root {
@@ -117,12 +117,12 @@
         }
         h2 { color: white; font-size: 1.3rem; margin: 5px 0 10px 0;}
         
-        /* --- HORIZONTAL CAROUSEL --- */
+        /* --- VERTICAL CAR CARDS (HORIZONTAL SCROLL) --- */
         .car-carousel {
             display: flex;
             overflow-x: auto;
-            gap: 15px;
-            padding: 10px 15px 20px 15px;
+            gap: 12px; /* Tighter gap for more cards */
+            padding: 10px 20px 20px 20px;
             scroll-snap-type: x mandatory;
             -webkit-overflow-scrolling: touch;
             width: 100%;
@@ -133,7 +133,7 @@
 
         .car-card {
             background: var(--panel);
-            padding: 15px;
+            padding: 15px 10px; /* Reduced side padding */
             border-radius: 10px;
             border: 2px solid #333;
             cursor: pointer;
@@ -141,17 +141,27 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            flex: 0 0 80%; 
-            max-width: 260px;
+            justify-content: space-between;
+            flex: 0 0 170px; /* Fixed narrow width */
+            min-height: 290px; /* Force vertical portrait shape */
             scroll-snap-align: center;
             -webkit-tap-highlight-color: transparent;
         }
         .car-card:active { transform: scale(0.98); border-color: var(--accent); }
-        .car-card h3 { margin: 15px 0 5px 0; color: white; font-size: 1.1rem; }
+        .car-card h3 { 
+            margin: 15px 0 5px 0; 
+            color: white; 
+            font-size: 1rem; 
+            text-align: center;
+            line-height: 1.2;
+            min-height: 2.4rem; /* Space for 2-line titles */
+            display: flex;
+            align-items: center;
+        }
         
         .car-icon-container {
-            width: 100px;
-            height: 60px;
+            width: 100%;
+            height: 65px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -163,10 +173,11 @@
 
         .car-info-row {
             display: flex;
-            justify-content: center;
-            gap: 15px;
+            flex-direction: column; /* Stack condition and price vertically */
+            align-items: center;
+            gap: 4px;
             width: 100%;
-            margin: 5px 0;
+            margin: 10px 0;
             font-size: 0.85rem;
             color: #aaa;
         }
@@ -175,10 +186,10 @@
         .tier-badge {
             position: absolute;
             top: 0; right: 0;
-            padding: 4px 10px;
+            padding: 4px 8px;
             font-size: 0.65rem;
             font-weight: bold;
-            border-bottom-left-radius: 10px;
+            border-bottom-left-radius: 8px;
             text-transform: uppercase;
         }
         .tier-cheap { background: #747d8c; color: white; }
@@ -187,19 +198,20 @@
 
         .pot-badge {
             display: inline-block;
-            padding: 4px 10px;
+            padding: 4px 8px;
             border-radius: 4px;
             font-weight: bold;
-            font-size: 0.8rem;
-            margin: 5px 0;
+            font-size: 0.75rem;
+            margin: 0 0 5px 0;
             border: 1px solid currentColor;
+            text-transform: uppercase;
         }
         .pot-0 { color: #a4b0be; } 
         .pot-1 { color: #3498db; } 
         .pot-2 { color: #9b59b6; } 
         .pot-3 { color: #ff4757; text-shadow: 0 0 8px rgba(255,71,87,0.5); font-weight: 900;}
 
-        .sell-chance-badge { font-weight: bold; font-size: 0.85rem; margin-top: 2px; }
+        .sell-chance-badge { font-weight: bold; font-size: 0.8rem; text-align: center; }
         .chance-up { color: var(--win); font-weight: bold; }
         .chance-down { color: var(--lose); font-weight: bold; }
 
@@ -219,7 +231,7 @@
             gap: 10px; 
             margin-top: 20px; 
         }
-        .btn-sell, .btn-fix { width: 100%; padding: 12px; font-size: 0.95rem; }
+        .btn-sell, .btn-fix, .btn-cancel { width: 100%; padding: 12px; font-size: 0.95rem; }
         .btn-sell { background: var(--win); color: white; }
         .btn-fix { background: var(--gold); color: black; }
 
@@ -361,6 +373,7 @@
             <h2 id="phaseTitle">Select a Car to Flip</h2>
             <div class="swipe-hint">Swipe left for endless deals ➔</div>
             
+            <!-- Horizontal Carousel -->
             <div class="car-carousel" id="carGrid"></div>
         </div>
 
@@ -648,28 +661,26 @@
 
                 newHTML += `
                     <div class="car-card" onclick="selectCar(${index})">
-                        <div class="tier-badge tier-${car.tier}">Class: ${car.tier}</div>
+                        <div class="tier-badge tier-${car.tier}">${car.tier}</div>
                         <h3>${car.name}</h3>
                         <div class="car-icon-container">
-                            ${getCarPixelArtSVG(car.tier, car.condition, 80, 45)}
+                            ${getCarPixelArtSVG(car.tier, car.condition, 90, 50)}
                         </div>
                         <div class="car-info-row">
                             <div>Cond: <span>${car.condition}</span></div>
                             <div>Price: <span style="color:var(--gold)">${formatCurrency(car.price)}</span></div>
                         </div>
-                        <div class="pot-badge ${pTier.class}">Potential: ${pTier.name}</div>
-                        <div class="sell-chance-badge">Prospect: ${sellChanceLabel}</div>
+                        <div class="pot-badge ${pTier.class}">${pTier.name}</div>
+                        <div class="sell-chance-badge">${sellChanceLabel}</div>
                     </div>
                 `;
             }
             grid.insertAdjacentHTML('beforeend', newHTML);
         }
 
-        // Infinite Scroll Event Listener
         document.addEventListener("DOMContentLoaded", () => {
             const grid = document.getElementById("carGrid");
             grid.addEventListener("scroll", () => {
-                // If user scrolls near the end of the carousel, load 3 more cars
                 if (grid.scrollWidth - grid.scrollLeft - grid.clientWidth < 100) {
                     loadMoreCars(3);
                 }
@@ -708,7 +719,6 @@
             let grid = document.getElementById("carGrid");
             grid.innerHTML = "";
             
-            // Load initial batch of 5 cars
             loadMoreCars(5);
             grid.scrollLeft = 0;
         }
