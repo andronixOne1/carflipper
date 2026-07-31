@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Car Flipping Simulator - Vertical Cards</title>
+    <title>Car Flipping Simulator - 100x Cap Edition</title>
     <style>
         * { box-sizing: border-box; }
         :root {
@@ -121,7 +121,7 @@
         .car-carousel {
             display: flex;
             overflow-x: auto;
-            gap: 12px; /* Tighter gap for more cards */
+            gap: 12px; 
             padding: 10px 20px 20px 20px;
             scroll-snap-type: x mandatory;
             -webkit-overflow-scrolling: touch;
@@ -133,7 +133,7 @@
 
         .car-card {
             background: var(--panel);
-            padding: 15px 10px; /* Reduced side padding */
+            padding: 15px 10px; 
             border-radius: 10px;
             border: 2px solid #333;
             cursor: pointer;
@@ -142,8 +142,8 @@
             flex-direction: column;
             align-items: center;
             justify-content: space-between;
-            flex: 0 0 170px; /* Fixed narrow width */
-            min-height: 290px; /* Force vertical portrait shape */
+            flex: 0 0 170px; 
+            min-height: 290px; 
             scroll-snap-align: center;
             -webkit-tap-highlight-color: transparent;
         }
@@ -154,7 +154,7 @@
             font-size: 1rem; 
             text-align: center;
             line-height: 1.2;
-            min-height: 2.4rem; /* Space for 2-line titles */
+            min-height: 2.4rem; 
             display: flex;
             align-items: center;
         }
@@ -173,7 +173,7 @@
 
         .car-info-row {
             display: flex;
-            flex-direction: column; /* Stack condition and price vertically */
+            flex-direction: column; 
             align-items: center;
             gap: 4px;
             width: 100%;
@@ -373,7 +373,6 @@
             <h2 id="phaseTitle">Select a Car to Flip</h2>
             <div class="swipe-hint">Swipe left for endless deals ➔</div>
             
-            <!-- Horizontal Carousel -->
             <div class="car-carousel" id="carGrid"></div>
         </div>
 
@@ -435,11 +434,13 @@
 
         const conditions = ["Wrecked", "Normal wear", "Mint"];
         
+        // 100X CAP UPDATE: 
+        // A perfect compromise. Huge hit frequency at the bottom, but the 100x dream is still alive!
         const potentialTiers = [
-            { id: 0, name: "Normal Win", class: "pot-0", winChance: 0.85, pool: [{min: 1.01, max: 1.15, c: 90}, {min: 1.16, max: 2.00, c: 8}, {min: 2.01, max: 4.00, c: 2}] },
-            { id: 1, name: "Big Win", class: "pot-1", winChance: 0.65, pool: [{min: 1.01, max: 1.20, c: 85}, {min: 1.21, max: 3.00, c: 10}, {min: 3.01, max: 10.00, c: 4}, {min: 10.01, max: 25.00, c: 1}] },
-            { id: 2, name: "Huge Win", class: "pot-2", winChance: 0.45, pool: [{min: 1.01, max: 1.50, c: 85}, {min: 1.51, max: 5.00, c: 10}, {min: 5.01, max: 15.00, c: 4}, {min: 15.01, max: 100.00, c: 1}] },
-            { id: 3, name: "INSANE WIN", class: "pot-3", winChance: 0.25, pool: [{min: 1.01, max: 1.50, c: 88}, {min: 1.51, max: 10.00, c: 9}, {min: 10.01, max: 50.00, c: 2.5}, {min: 50.01, max: 1000.00, c: 0.5}] }
+            { id: 0, name: "Normal Win", class: "pot-0", winChance: 0.85, pool: [{min: 1.01, max: 1.15, c: 75}, {min: 1.16, max: 2.00, c: 20}, {min: 2.01, max: 4.00, c: 5}] },
+            { id: 1, name: "Big Win", class: "pot-1", winChance: 0.65, pool: [{min: 1.01, max: 1.25, c: 75}, {min: 1.26, max: 2.50, c: 18}, {min: 2.51, max: 6.00, c: 5}, {min: 6.01, max: 12.00, c: 2}] },
+            { id: 2, name: "Huge Win", class: "pot-2", winChance: 0.45, pool: [{min: 1.05, max: 1.40, c: 70}, {min: 1.41, max: 3.50, c: 20}, {min: 3.51, max: 10.00, c: 8}, {min: 10.01, max: 25.00, c: 2}] },
+            { id: 3, name: "INSANE WIN", class: "pot-3", winChance: 0.25, pool: [{min: 1.05, max: 1.80, c: 65}, {min: 1.81, max: 5.00, c: 25}, {min: 5.01, max: 20.00, c: 8}, {min: 20.01, max: 100.00, c: 2}] }
         ];
 
         const repairEvents = {
