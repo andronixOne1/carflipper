@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Car Flipping Simulator - 100x Cap Edition</title>
+    <title>Car Flipping Simulator - Blind Gamble</title>
     <style>
         * { box-sizing: border-box; }
         :root {
@@ -141,15 +141,16 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: space-between;
+            justify-content: flex-start;
+            gap: 10px;
             flex: 0 0 170px; 
-            min-height: 290px; 
+            min-height: 260px; 
             scroll-snap-align: center;
             -webkit-tap-highlight-color: transparent;
         }
         .car-card:active { transform: scale(0.98); border-color: var(--accent); }
         .car-card h3 { 
-            margin: 15px 0 5px 0; 
+            margin: 15px 0 0 0; 
             color: white; 
             font-size: 1rem; 
             text-align: center;
@@ -167,7 +168,6 @@
             justify-content: center;
             background: rgba(0,0,0,0.3);
             border-radius: 8px;
-            margin: 5px 0;
             border: 1px solid #333;
         }
 
@@ -177,7 +177,7 @@
             align-items: center;
             gap: 4px;
             width: 100%;
-            margin: 10px 0;
+            margin: 5px 0;
             font-size: 0.85rem;
             color: #aaa;
         }
@@ -202,7 +202,7 @@
             border-radius: 4px;
             font-weight: bold;
             font-size: 0.75rem;
-            margin: 0 0 5px 0;
+            margin: 0;
             border: 1px solid currentColor;
             text-transform: uppercase;
         }
@@ -210,10 +210,6 @@
         .pot-1 { color: #3498db; } 
         .pot-2 { color: #9b59b6; } 
         .pot-3 { color: #ff4757; text-shadow: 0 0 8px rgba(255,71,87,0.5); font-weight: 900;}
-
-        .sell-chance-badge { font-weight: bold; font-size: 0.8rem; text-align: center; }
-        .chance-up { color: var(--win); font-weight: bold; }
-        .chance-down { color: var(--lose); font-weight: bold; }
 
         .action-area {
             background: var(--panel);
@@ -231,7 +227,7 @@
             gap: 10px; 
             margin-top: 20px; 
         }
-        .btn-sell, .btn-fix, .btn-cancel { width: 100%; padding: 12px; font-size: 0.95rem; }
+        .btn-sell, .btn-fix { width: 100%; padding: 12px; font-size: 0.95rem; }
         .btn-sell { background: var(--win); color: white; }
         .btn-fix { background: var(--gold); color: black; }
 
@@ -434,8 +430,6 @@
 
         const conditions = ["Wrecked", "Normal wear", "Mint"];
         
-        // 100X CAP UPDATE: 
-        // A perfect compromise. Huge hit frequency at the bottom, but the 100x dream is still alive!
         const potentialTiers = [
             { id: 0, name: "Normal Win", class: "pot-0", winChance: 0.85, pool: [{min: 1.01, max: 1.15, c: 75}, {min: 1.16, max: 2.00, c: 20}, {min: 2.01, max: 4.00, c: 5}] },
             { id: 1, name: "Big Win", class: "pot-1", winChance: 0.65, pool: [{min: 1.01, max: 1.25, c: 75}, {min: 1.26, max: 2.50, c: 18}, {min: 2.51, max: 6.00, c: 5}, {min: 6.01, max: 12.00, c: 2}] },
@@ -445,25 +439,25 @@
 
         const repairEvents = {
             fail: [
-                "💥 Mechanic broke a leg mid-repair! Engine ruined (Severe Demotion to Sell Chance).",
-                "🤦 Mechanic dropped your engine block! Severe damage (Demotion to Sell Chance).",
-                "🎰 Mechanic gambled your money away and damaged parts (Demotion to Sell Chance).",
-                "⚡ Mechanic wired the battery backwards and fried electronics (Demotion to Sell Chance)!"
+                "💥 Mechanic broke a leg mid-repair! Engine ruined.",
+                "🤦 Mechanic dropped your engine block! Severe damage.",
+                "🎰 Mechanic gambled your money away and damaged parts.",
+                "⚡ Mechanic wired the battery backwards and fried electronics!"
             ],
             shoddy: [
-                "🍺 Mechanic was hungover, but duct-taped the bumper (Minor Boost to Sell Chance, +1 Tier).",
-                "🌾 Mechanic used parts from an old lawnmower (Minor Boost to Sell Chance, +1 Tier).",
-                "🛠️ Mechanic patched the leak with chewing gum (Minor Boost to Sell Chance, +1 Tier)."
+                "🍺 Mechanic was hungover, but duct-taped the bumper (+1 Tier).",
+                "🌾 Mechanic used parts from an old lawnmower (+1 Tier).",
+                "🛠️ Mechanic patched the leak with chewing gum (+1 Tier)."
             ],
             success: [
-                "✨ Mechanic worked overtime and restored it clean (Great Upgrade to Sell Chance, +2 Tiers)!",
-                "🏎️ Mechanic tuned the engine to factory perfection (Great Upgrade to Sell Chance, +2 Tiers)!",
-                "🧼 Mechanic buffed out every scratch till it shined (Great Upgrade to Sell Chance, +2 Tiers)!"
+                "✨ Mechanic worked overtime and restored it clean (+2 Tiers)!",
+                "🏎️ Mechanic tuned the engine to factory perfection (+2 Tiers)!",
+                "🧼 Mechanic buffed out every scratch till it shined (+2 Tiers)!"
             ],
             jackpot: [
-                "🎂 Mechanic gave you a free twin-turbo upgrade (Jackpot Tuning to Sell Chance, INSANE TIER)!",
-                "🚀 Mechanic secretly installed a nitrous system (Jackpot Tuning to Sell Chance, INSANE TIER)!",
-                "👑 Mechanic accidentally turned your car into a street legend (Jackpot Tuning to Sell Chance, INSANE TIER)!"
+                "🎂 Mechanic gave you a free twin-turbo upgrade (INSANE TIER)!",
+                "🚀 Mechanic secretly installed a nitrous system (INSANE TIER)!",
+                "👑 Mechanic accidentally turned your car into a street legend (INSANE TIER)!"
             ]
         };
 
@@ -621,17 +615,6 @@
             requestAnimationFrame(step);
         }
 
-        function getSellChanceRatingLabel(car) {
-            let pTier = potentialTiers[car.tierLevel];
-            let rawChance = pTier.winChance + car.winChanceBonus;
-            
-            if (rawChance <= 0.30) return '<span style="color:#ff4757;">🔴 Terrible</span>';
-            if (rawChance <= 0.50) return '<span style="color:#ffa502;"> 🟠 Poor</span>';
-            if (rawChance <= 0.70) return '<span style="color:#ffd700;">🟡 Fair</span>';
-            if (rawChance <= 0.90) return '<span style="color:#2ed573;">🟢 Good</span>';
-            return '<span style="color:#66fcf1; text-shadow: 0 0 6px var(--accent-dark);">👑 Excellent</span>';
-        }
-
         function loadMoreCars(count) {
             let grid = document.getElementById("carGrid");
             let newHTML = "";
@@ -658,7 +641,6 @@
                 currentOffers.push(car);
 
                 let pTier = potentialTiers[car.tierLevel];
-                let sellChanceLabel = getSellChanceRatingLabel(car);
 
                 newHTML += `
                     <div class="car-card" onclick="selectCar(${index})">
@@ -672,7 +654,6 @@
                             <div>Price: <span style="color:var(--gold)">${formatCurrency(car.price)}</span></div>
                         </div>
                         <div class="pot-badge ${pTier.class}">${pTier.name}</div>
-                        <div class="sell-chance-badge">${sellChanceLabel}</div>
                     </div>
                 `;
             }
@@ -745,14 +726,6 @@
             document.getElementById("actionCarIcon").innerHTML = getCarPixelArtSVG(activeCar.tier, activeCar.condition, 100, 60);
             
             let pTier = potentialTiers[activeCar.tierLevel];
-            let sellChanceLabel = getSellChanceRatingLabel(activeCar);
-
-            let bonusText = "";
-            if (activeCar.winChanceBonus > 0) {
-                bonusText = `<span class="chance-up">(Upgraded)</span>`;
-            } else if (activeCar.winChanceBonus < 0) {
-                bonusText = `<span class="chance-down">(Degraded)</span>`;
-            }
 
             let fixCost = 0;
             let canFix = !activeCar.isFixed && activeCar.condition !== "Mint" && activeCar.condition !== "Tuned Beast";
@@ -769,7 +742,6 @@
                     <div>Cond: <span>${activeCar.condition}</span></div>
                 </div>
                 <div class="pot-badge ${pTier.class}" style="font-size:1rem;">Potential: ${pTier.name}</div>
-                <p style="margin: 5px 0;">Market Rating: <strong>${sellChanceLabel}</strong> ${bonusText}</p>
             `;
 
             let bannerEl = document.getElementById("repair-result-banner");
