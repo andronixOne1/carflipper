@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Car Flipping Simulator - Horizontal UI</title>
+    <title>Car Flipping Simulator - Infinite Lot</title>
     <style>
         * { box-sizing: border-box; }
         :root {
@@ -113,7 +113,7 @@
             width: 100%;
             max-width: 800px;
             text-align: center;
-            padding: 15px 0; /* Removed side padding for edge-to-edge scroll */
+            padding: 15px 0; 
         }
         h2 { color: white; font-size: 1.3rem; margin: 5px 0 10px 0;}
         
@@ -141,7 +141,7 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            flex: 0 0 80%; /* Takes up 80% of screen width */
+            flex: 0 0 80%; 
             max-width: 260px;
             scroll-snap-align: center;
             -webkit-tap-highlight-color: transparent;
@@ -219,11 +219,9 @@
             gap: 10px; 
             margin-top: 20px; 
         }
-        .btn-sell, .btn-fix, .btn-cancel { width: 100%; padding: 12px; font-size: 0.95rem; }
+        .btn-sell, .btn-fix { width: 100%; padding: 12px; font-size: 0.95rem; }
         .btn-sell { background: var(--win); color: white; }
         .btn-fix { background: var(--gold); color: black; }
-        .btn-cancel { background: transparent; border: 1px solid #555; color: #ccc; }
-        .btn-cancel:hover { background: #333; }
 
         .progress-container {
             width: 100%;
@@ -305,10 +303,10 @@
             margin-top: -5px;
             margin-bottom: 10px;
             font-style: italic;
+            animation: pulse 2s infinite;
         }
 
         @keyframes pulse { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
-        .pulsing { animation: pulse 1s infinite; }
         @keyframes spin { 100% { transform: rotate(360deg); } }
         .spinner {
             width: 30px; height: 30px;
@@ -361,13 +359,9 @@
     <div class="container">
         <div id="selectionPhase">
             <h2 id="phaseTitle">Select a Car to Flip</h2>
-            <div class="swipe-hint">Swipe horizontally to see all offers ➔</div>
+            <div class="swipe-hint">Swipe left for endless deals ➔</div>
             
             <div class="car-carousel" id="carGrid"></div>
-            
-            <div style="padding: 0 15px;">
-                <button class="btn-cancel" onclick="startRound()" style="width: 100%; padding: 12px; margin-top: 5px;">🔄 Refresh Fleet</button>
-            </div>
         </div>
 
         <div class="action-area" id="actionArea">
@@ -414,7 +408,6 @@
         </div>
     </div>
     <script>
-        // Updated prices ranging strictly from $1 to $10,000
         const fleet = [
             { name: "Qenault Uwingo", tier: "cheap", basePrice: 2 },
             { name: "Jonda Divic", tier: "cheap", basePrice: 15 },
@@ -483,7 +476,7 @@
             "A local monster truck rally used your car as a ramp. Completely flattened!"
         ];
 
-        let balance = 1500; // Adjusted starting balance for the new economy
+        let balance = 1500;
         let currentOffers = [];
         let activeCar = null;
         let lastRepairBanner = null;
@@ -625,6 +618,64 @@
             return '<span style="color:#66fcf1; text-shadow: 0 0 6px var(--accent-dark);">👑 Excellent</span>';
         }
 
+        function loadMoreCars(count) {
+            let grid = document.getElementById("carGrid");
+            let newHTML = "";
+            for (let i = 0; i < count; i++) {
+                let index = currentOffers.length;
+                let carTemplate = fleet[randomInt(0, fleet.length - 1)];
+                let condition = conditions[randomInt(0, 2)];
+                
+                let baseTier = condition === "Wrecked" ? 0 : (condition === "Normal wear" ? 1 : 2);
+                let finalTier = Math.min(3, Math.max(0, baseTier + randomInt(-1, 1)));
+
+                let priceMod = condition === "Wrecked" ? 0.6 : (condition === "Mint" ? 1.4 : 1.0);
+                let finalPrice = Math.max(1, Math.floor(carTemplate.basePrice * priceMod));
+
+                let car = {
+                    ...carTemplate,
+                    price: finalPrice,
+                    condition: condition,
+                    tierLevel: finalTier,
+                    winChanceBonus: 0, 
+                    invested: finalPrice,
+                    isFixed: false
+                };
+                currentOffers.push(car);
+
+                let pTier = potentialTiers[car.tierLevel];
+                let sellChanceLabel = getSellChanceRatingLabel(car);
+
+                newHTML += `
+                    <div class="car-card" onclick="selectCar(${index})">
+                        <div class="tier-badge tier-${car.tier}">Class: ${car.tier}</div>
+                        <h3>${car.name}</h3>
+                        <div class="car-icon-container">
+                            ${getCarPixelArtSVG(car.tier, car.condition, 80, 45)}
+                        </div>
+                        <div class="car-info-row">
+                            <div>Cond: <span>${car.condition}</span></div>
+                            <div>Price: <span style="color:var(--gold)">${formatCurrency(car.price)}</span></div>
+                        </div>
+                        <div class="pot-badge ${pTier.class}">Potential: ${pTier.name}</div>
+                        <div class="sell-chance-badge">Prospect: ${sellChanceLabel}</div>
+                    </div>
+                `;
+            }
+            grid.insertAdjacentHTML('beforeend', newHTML);
+        }
+
+        // Infinite Scroll Event Listener
+        document.addEventListener("DOMContentLoaded", () => {
+            const grid = document.getElementById("carGrid");
+            grid.addEventListener("scroll", () => {
+                // If user scrolls near the end of the carousel, load 3 more cars
+                if (grid.scrollWidth - grid.scrollLeft - grid.clientWidth < 100) {
+                    loadMoreCars(3);
+                }
+            });
+        });
+
         function simulateGameLoad() {
             const globalLoader = document.getElementById("global-loader");
             const loadBar = document.getElementById("globalProgressBar");
@@ -653,52 +704,13 @@
             
             lastRepairBanner = null;
             currentOffers = [];
-            let gridHTML = "";
-
-            for (let i = 0; i < 3; i++) {
-                let carTemplate = fleet[randomInt(0, fleet.length - 1)];
-                let condition = conditions[randomInt(0, 2)];
-                
-                let baseTier = condition === "Wrecked" ? 0 : (condition === "Normal wear" ? 1 : 2);
-                let finalTier = Math.min(3, Math.max(0, baseTier + randomInt(-1, 1)));
-
-                let priceMod = condition === "Wrecked" ? 0.6 : (condition === "Mint" ? 1.4 : 1.0);
-                // Math.max guarantees even the cheapest ruined car costs at least $1
-                let finalPrice = Math.max(1, Math.floor(carTemplate.basePrice * priceMod));
-
-                let car = {
-                    ...carTemplate,
-                    price: finalPrice,
-                    condition: condition,
-                    tierLevel: finalTier,
-                    winChanceBonus: 0, 
-                    invested: finalPrice,
-                    isFixed: false
-                };
-                currentOffers.push(car);
-
-                let pTier = potentialTiers[car.tierLevel];
-                let sellChanceLabel = getSellChanceRatingLabel(car);
-
-                gridHTML += `
-                    <div class="car-card" onclick="selectCar(${i})">
-                        <div class="tier-badge tier-${car.tier}">Class: ${car.tier}</div>
-                        <h3>${car.name}</h3>
-                        <div class="car-icon-container">
-                            ${getCarPixelArtSVG(car.tier, car.condition, 80, 45)}
-                        </div>
-                        <div class="car-info-row">
-                            <div>Cond: <span>${car.condition}</span></div>
-                            <div>Price: <span style="color:var(--gold)">${formatCurrency(car.price)}</span></div>
-                        </div>
-                        <div class="pot-badge ${pTier.class}">Potential: ${pTier.name}</div>
-                        <div class="sell-chance-badge">Prospect: ${sellChanceLabel}</div>
-                    </div>
-                `;
-            }
-            document.getElementById("carGrid").innerHTML = gridHTML;
-            // Scroll carousel back to start on refresh
-            document.getElementById("carGrid").scrollLeft = 0;
+            
+            let grid = document.getElementById("carGrid");
+            grid.innerHTML = "";
+            
+            // Load initial batch of 5 cars
+            loadMoreCars(5);
+            grid.scrollLeft = 0;
         }
 
         function selectCar(index) {
