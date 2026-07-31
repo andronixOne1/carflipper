@@ -26,7 +26,6 @@
             align-items: center;
         }
 
-        /* --- GLOBAL LOADING SCREEN --- */
         #global-loader {
             position: fixed;
             top: 0; left: 0;
@@ -192,7 +191,6 @@
         .btn-sell { background: var(--win); color: white; }
         .btn-fix { background: var(--gold); color: black; }
 
-        /* Progress Bar Styling */
         .progress-container {
             width: 80%;
             max-width: 320px;
@@ -273,7 +271,6 @@
         .coins-won { font-size: 1.2rem; color: #aaa; margin-bottom: 30px; height: 24px; }
         .coins-won span { color: var(--gold); font-weight: bold; }
         
-        /* Animations */
         @keyframes pulse { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
         .pulsing { animation: pulse 1s infinite; }
 
@@ -313,7 +310,6 @@
 </head>
 <body>
 
-    <!-- GLOBAL LOADING SCREEN -->
     <div id="global-loader">
         <h1>Car Flip Simulator</h1>
         <div id="bootCarIcon"></div>
@@ -376,9 +372,7 @@
             <button id="btnNextRound" onclick="startRound()" style="display:none; margin: 0 auto;">Play Next Round</button>
         </div>
     </div>
-
     <script>
-        // Fleet Data
         const fleet = [
             { name: "Jonda Divic", tier: "cheap", basePrice: 200 },
             { name: "Wolkswagen Holf", tier: "cheap", basePrice: 400 },
