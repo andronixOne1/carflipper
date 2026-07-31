@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Car Flipping Simulator - Fixed RTP Edition</title>
+    <title>Car Flipping Simulator - True 95% RTP</title>
     <style>
         * { box-sizing: border-box; }
         :root {
@@ -430,12 +430,12 @@
 
         const conditions = ["Wrecked", "Normal wear", "Mint"];
         
-        // --- UPDATED MATH MODEL: ~95% RTP with 100x Cap ---
+        // --- 95% RTP MATH MODEL (100x Cap) ---
         const potentialTiers = [
-            { id: 0, name: "Normal Win", class: "pot-0", winChance: 0.78, pool: [{min: 1.01, max: 1.15, c: 80}, {min: 1.16, max: 1.80, c: 15}, {min: 1.81, max: 3.00, c: 5}] },
-            { id: 1, name: "Big Win", class: "pot-1", winChance: 0.58, pool: [{min: 1.01, max: 1.25, c: 80}, {min: 1.26, max: 2.20, c: 15}, {min: 2.21, max: 5.00, c: 4}, {min: 5.01, max: 10.00, c: 1}] },
-            { id: 2, name: "Huge Win", class: "pot-2", winChance: 0.38, pool: [{min: 1.05, max: 1.40, c: 75}, {min: 1.41, max: 3.00, c: 18}, {min: 3.01, max: 8.00, c: 6}, {min: 8.01, max: 20.00, c: 1}] },
-            { id: 3, name: "INSANE WIN", class: "pot-3", winChance: 0.22, pool: [{min: 1.05, max: 1.80, c: 70}, {min: 1.81, max: 4.00, c: 20}, {min: 4.01, max: 15.00, c: 8}, {min: 15.01, max: 100.00, c: 2}] }
+            { id: 0, name: "Normal Win", class: "pot-0", winChance: 0.82, pool: [{min: 1.01, max: 1.15, c: 85}, {min: 1.16, max: 1.50, c: 10}, {min: 1.51, max: 2.50, c: 5}] },
+            { id: 1, name: "Big Win", class: "pot-1", winChance: 0.63, pool: [{min: 1.01, max: 1.30, c: 75}, {min: 1.31, max: 2.50, c: 18}, {min: 2.51, max: 5.00, c: 6}, {min: 5.01, max: 10.00, c: 1}] },
+            { id: 2, name: "Huge Win", class: "pot-2", winChance: 0.40, pool: [{min: 1.05, max: 1.50, c: 70}, {min: 1.51, max: 4.00, c: 20}, {min: 4.01, max: 10.00, c: 8}, {min: 10.01, max: 25.00, c: 2}] },
+            { id: 3, name: "INSANE WIN", class: "pot-3", winChance: 0.18, pool: [{min: 1.05, max: 2.00, c: 65}, {min: 2.01, max: 6.00, c: 22}, {min: 6.01, max: 25.00, c: 10}, {min: 25.01, max: 100.00, c: 3}] }
         ];
 
         const repairEvents = {
