@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Car Flipping Simulator - Slot Mechanics Update</title>
+    <title>Car Flipping Simulator - True Math Update</title>
     <style>
         * { box-sizing: border-box; }
         :root {
@@ -645,13 +645,11 @@
                     price: finalPrice,
                     condition: condition,
                     tierLevel: finalTier,
-                    winChanceBonus: 0, 
                     invested: finalPrice,
                     isFixed: false
                 };
                 currentOffers.push(car);
 
-                // Notice: No potential badge rendered on the card!
                 newHTML += `
                     <div class="car-card" onclick="selectCar(${index})">
                         <div class="tier-badge tier-${car.tier}">${car.tier}</div>
@@ -724,15 +722,14 @@
             document.getElementById("actionCarIcon").innerHTML = getCarPixelArtSVG(activeCar.tier, activeCar.condition, 100, 60);
 
             let fixCost = 0;
-            let canFix = !activeCar.isFixed && activeCar.condition !== "Mint" && activeCar.condition !== "Tuned Beast";
+            let canFix = !activeCar.isFixed && activeCar.condition !== "Mint" && activeCar.condition !== "Tuned Beast" && activeCar.condition !== "Ruined";
 
-            if (activeCar.condition === "Wrecked" || activeCar.condition === "Ruined") {
+            if (activeCar.condition === "Wrecked") {
                 fixCost = activeCar.price; 
             } else if (activeCar.condition === "Normal wear") {
                 fixCost = Math.floor(activeCar.price * 0.50); 
             }
 
-            // Notice: No potential badge rendered here either!
             let html = `
                 <div class="car-info-row" style="margin-bottom: 10px; font-size: 0.95rem;">
                     <div>Total Invested: <span style="color:var(--gold); font-size: 1.1rem;">${formatCurrency(activeCar.invested)}</span></div>
@@ -789,22 +786,18 @@
             animateProgressBar(repairBar, 1000, () => {
                 let roll = Math.random();
                 if (roll <= 0.15) {
-                    activeCar.winChanceBonus -= 0.15;
                     activeCar.condition = "Ruined";
                     lastRepairBanner = { className: "repair-fail", text: getRandomMsg(repairEvents.fail) };
                 } else if (roll <= 0.40) {
-                    activeCar.winChanceBonus += 0.05;
                     activeCar.tierLevel = Math.min(3, activeCar.tierLevel + 1);
                     activeCar.condition = "Repaired";
                     lastRepairBanner = { className: "repair-shoddy", text: getRandomMsg(repairEvents.shoddy) };
                 } else if (roll <= 0.85) {
-                    activeCar.winChanceBonus += 0.15;
                     let jump = activeCar.condition === "Wrecked" ? 2 : 1;
                     activeCar.tierLevel = Math.min(3, activeCar.tierLevel + jump);
                     activeCar.condition = "Mint";
                     lastRepairBanner = { className: "repair-success", text: getRandomMsg(repairEvents.success) };
                 } else {
-                    activeCar.winChanceBonus += 0.30;
                     activeCar.tierLevel = 3;
                     activeCar.condition = "Tuned Beast";
                     lastRepairBanner = { className: "repair-jackpot", text: getRandomMsg(repairEvents.jackpot) };
@@ -820,10 +813,9 @@
 
         function rollMultiplier(car) {
             let pTier = potentialTiers[car.tierLevel];
-            let effectiveWinChance = Math.max(0.05, Math.min(0.95, pTier.winChance + car.winChanceBonus));
 
             let roll = Math.random();
-            if (roll > effectiveWinChance) return 0; 
+            if (roll > pTier.winChance) return 0; 
 
             let multRoll = Math.random() * 100;
             let cumulative = 0;
