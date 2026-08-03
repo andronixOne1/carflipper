@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Car Flipping Simulator - NFS Underground Edition</title>
+    <title>Car Flipping Simulator - Y2K Underground Edition</title>
     <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;700&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
     <style>
         * { box-sizing: border-box; }
@@ -197,16 +197,37 @@
             { id: 4, winChance: 0.13, pool: [{min: 1.05, max: 2.00, c: 75}, {min: 2.01, max: 10.00, c: 15}, {min: 10.01, max: 50.00, c: 8}, {min: 50.01, max: 250.00, c: 2}] } 
         ];
 
+        // Restored general public-friendly repair messages
         const repairEvents = {
             fail: [
-                "💥 Engine blew on the dyno! It's junk.", "🤦 Dropped the engine block! Severe chassis damage.", "⚡ ECU shorted and fried the entire harness!",
-                "🔥 Nitrous backfire! The bay is scorched.", "🚔 Cops raided the shop and impounded parts.", "🌪️ Turbo spooled too hard and shredded the block.",
-                "💥 Lift failure! Car plummeted and bent the frame.", "🚜 Forklift driver backed straight into the doors.", "🐭 Rats chewed the custom wiring harness overnight.",
-                "☢️ Coolant leak corrupted the entire system.", "🪚 Cut the wrong structural pillar. Frame is toast."
+                "💥 Mechanic broke a leg mid-repair! Engine ruined.",
+                "🤦 Mechanic dropped your engine block! Severe damage.",
+                "🎰 Mechanic gambled your money away and damaged parts.",
+                "⚡ Mechanic wired the battery backwards and fried electronics!",
+                "🔥 Mechanic used a blowtorch near the gas tank. Oops.",
+                "🦝 A family of raccoons moved into the engine bay.",
+                "🛸 Alien abduction reported at the garage. Car returned as a cube.",
+                "🔨 Mechanic sneezed while holding a sledgehammer. Totaled.",
+                "🌊 Left the windows down during a flash flood in the shop.",
+                "🌪️ Mechanic accidentally built a tornado machine instead of an engine.",
+                "🧀 Mechanic tried to fix the radiator with melted cheese.",
+                "🦍 A stray silverback gorilla got loose in the garage."
             ],
-            shoddy: ["🔧 Used zip-ties for the aero kit (+1 Tier).", "🌾 Sourced parts from a junkyard (+1 Tier).", "🛠️ Quick street tune, rough but works (+1 Tier)."],
-            success: ["✨ Full carbon fiber treatment applied (+1 Tier)!", "🏎️ Pro dyno tune locked in perfectly (+1 Tier)!", "🧼 Forged internals successfully installed (+1 Tier)!"],
-            jackpot: ["🎂 Hidden crate engine swap successful (+2 Tiers)!", "🚀 Twin-turbo nitrous setup is flawless (+2 Tiers)!", "👑 You just built a legendary street king (+2 Tiers)!"]
+            shoddy: [
+                "🍺 Mechanic was hungover, but duct-taped the bumper (+1 Tier).",
+                "🌾 Mechanic used parts from an old lawnmower (+1 Tier).",
+                "🛠️ Mechanic patched the leak with chewing gum (+1 Tier)."
+            ],
+            success: [
+                "✨ Mechanic worked overtime and restored it clean (+1 Tier)!",
+                "🏎️ Mechanic tuned it up to factory perfection (+1 Tier)!",
+                "🧼 Mechanic buffed out every scratch till it shined (+1 Tier)!"
+            ],
+            jackpot: [
+                "🎂 Mechanic gave you a free mystery upgrade (+2 Tiers)!",
+                "🚀 Mechanic secretly installed a nitro boost (+2 Tiers)!",
+                "👑 Mechanic accidentally turned your car into a street legend (+2 Tiers)!"
+            ]
         };
 
         let balance = 5000;
@@ -217,77 +238,48 @@
         let currentFinalMult = 0;
         let roundCount = 0; 
 
-        // MODERN VECTOR CYBERPUNK CAR GENERATOR
-        function getCarVectorSVG(tier, condition, width = 160, height = 90) {
-            let accent = tier === "cheap" ? "#a4b0be" : (tier === "normal" ? "#00d2ff" : (tier === "luxury" ? "#ffd32a" : "#ff3f34"));
-            
-            let path = ""; let windows = ""; let w1x = 35, w2x = 110;
-            
-            if (tier === "cheap") { // Hatchback
-                path = "M 15 65 L 15 45 L 35 30 L 80 30 L 110 45 L 135 45 L 135 65 Z";
-                windows = `<polygon points="38,32 75,32 75,45 25,45" fill="#111" stroke="${accent}" stroke-width="1"/><polygon points="78,32 105,32 108,45 78,45" fill="#111" stroke="${accent}" stroke-width="1"/>`;
-                w1x = 35; w2x = 110;
-            } else if (tier === "normal") { // Coupe
-                path = "M 10 65 L 15 45 L 45 32 L 85 32 L 125 45 L 145 45 L 145 65 Z";
-                windows = `<polygon points="48,34 82,34 82,45 28,45" fill="#111" stroke="${accent}" stroke-width="1"/><polygon points="85,34 118,34 122,45 85,45" fill="#111" stroke="${accent}" stroke-width="1"/>`;
-                w1x = 35; w2x = 120;
-            } else if (tier === "luxury") { // Supercar
-                path = "M 5 65 L 15 45 L 55 35 L 95 35 L 135 45 L 150 50 L 150 65 Z M 10 45 L 15 25 L 30 25 L 25 45 Z";
-                windows = `<polygon points="58,37 92,37 102,45 42,45" fill="#111" stroke="${accent}" stroke-width="1"/>`;
-                w1x = 35; w2x = 125;
-            } else { // Hypercar
-                path = "M 5 65 L 20 40 L 65 35 L 105 38 L 145 48 L 155 58 L 155 65 Z M 15 40 L 25 15 L 45 15 L 35 40 Z M 75 35 L 85 25 L 95 25 L 85 35 Z";
-                windows = `<polygon points="65,37 95,39 105,48 45,48" fill="#111" stroke="${accent}" stroke-width="1"/>`;
-                w1x = 35; w2x = 125;
-            }
-
+        // Y2K LOW-POLY / CELL-SHADED RACING GAME CAR GENERATOR
+        function getY2KCarSVG(tier, condition, width = 160, height = 90) {
+            let bodyColor = tier === "cheap" ? "#7f8c8d" : (tier === "normal" ? "#2980b9" : (tier === "luxury" ? "#f1c40f" : "#e74c3c"));
+            let roofColor = tier === "cheap" ? "#95a5a6" : (tier === "normal" ? "#3498db" : (tier === "luxury" ? "#f39c12" : "#c0392b"));
             let isWrecked = condition === "Wrecked" || condition === "Ruined";
             let isTuned = condition === "Tuned Beast";
-            
-            let transform = isWrecked ? `transform="rotate(-3 80 45) translate(0 5)"` : ``; 
-            let opacity = isWrecked ? `0.5` : `1`;
-            let uniqueId = Math.random().toString(36).substring(2, 9); // Prevents SVG filter bleed
-            
-            let defs = `
-                <defs>
-                    <filter id="glow-${uniqueId}" x="-50%" y="-50%" width="200%" height="200%">
-                        <feGaussianBlur stdDeviation="${isTuned ? '4' : '1.5'}" result="blur" />
-                        <feComposite in="SourceGraphic" in2="blur" operator="over" />
-                    </filter>
-                    <linearGradient id="paint-${uniqueId}" x1="0%" y1="0%" x2="0%" y2="100%">
-                        <stop offset="0%" stop-color="${isWrecked ? '#1a1c20' : '#2a2e3d'}" />
-                        <stop offset="100%" stop-color="#090a0f" />
-                    </linearGradient>
-                </defs>
-            `;
 
-            let underglow = isTuned ? `<ellipse cx="80" cy="70" rx="65" ry="8" fill="${accent}" filter="url(#glow-${uniqueId})" opacity="0.6"/>` : ``;
-            let exhaust = isTuned ? `<path d="M 5 60 L -15 55 L -5 65 L -20 68 L 0 70 Z" fill="#ff9f43" filter="url(#glow-${uniqueId})"><animate attributeName="opacity" values="0.4;1;0.4" dur="0.1s" repeatCount="indefinite"/></path>` : ``;
-            let smoke = isWrecked ? `<circle cx="30" cy="30" r="15" fill="#555" opacity="0.5"><animate attributeName="cy" values="30;0" dur="2s" repeatCount="indefinite"/><animate attributeName="opacity" values="0.5;0" dur="2s" repeatCount="indefinite"/></circle>` : ``;
+            if (isWrecked) {
+                bodyColor = "#34495e";
+                roofColor = "#2c3e50";
+            }
 
-            let rims = isTuned ? accent : (isWrecked ? '#222' : '#777');
-            let wheels = `
-                <circle cx="${w1x}" cy="65" r="14" fill="#050505" stroke="${isWrecked ? '#222' : accent}" stroke-width="${isTuned ? '3' : '2'}" filter="${isTuned ? `url(#glow-${uniqueId})` : ''}"/>
-                <circle cx="${w2x}" cy="65" r="14" fill="#050505" stroke="${isWrecked ? '#222' : accent}" stroke-width="${isTuned ? '3' : '2'}" filter="${isTuned ? `url(#glow-${uniqueId})` : ''}"/>
-                <circle cx="${w1x}" cy="65" r="6" fill="none" stroke="${rims}" stroke-width="2" />
-                <circle cx="${w2x}" cy="65" r="6" fill="none" stroke="${rims}" stroke-width="2" />
-                <circle cx="${w1x}" cy="65" r="2" fill="${rims}" />
-                <circle cx="${w2x}" cy="65" r="2" fill="${rims}" />
-            `;
-            
-            let body = `<path d="${path}" fill="url(#paint-${uniqueId})" stroke="${accent}" stroke-width="${isWrecked ? '1' : '2'}" opacity="${opacity}" filter="url(#glow-${uniqueId})" />`;
-            let cracks = isWrecked ? `<path d="M 50 38 L 55 43 M 65 38 L 60 43 M 35 60 L 40 50" stroke="#fff" stroke-width="1" opacity="0.4"/>` : ``;
+            let glowFilter = isTuned ? `<filter id="y2k-glow"><feGaussianBlur stdDeviation="3" result="coloredBlur"/><feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>` : ``;
+            let underglow = isTuned ? `<ellipse cx="80" cy="72" rx="60" ry="6" fill="#00ffff" opacity="0.8" filter="url(#y2k-glow)"/>` : ``;
+            let transform = isWrecked ? `transform="rotate(-4 80 50) translate(0 4)"` : ``;
 
-            return `<svg viewBox="0 0 160 90" width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
-                ${defs}
+            return `<svg viewBox="0 0 160 90" width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg" style="filter: drop-shadow(0 6px 4px rgba(0,0,0,0.6));">
+                <defs>${glowFilter}</defs>
                 ${underglow}
-                ${smoke}
                 <g ${transform}>
-                    ${exhaust}
-                    ${body}
-                    ${windows}
-                    ${cracks}
-                    ${wheels}
+                    <!-- Back spoiler / Body accents for Y2K look -->
+                    ${isTuned ? `<polygon points="120,40 135,30 140,35 125,45" fill="#fff" opacity="0.8"/>` : ``}
+                    
+                    <!-- Low-poly chassis body -->
+                    <polygon points="15,65 25,48 55,38 105,38 135,48 145,65" fill="${bodyColor}" stroke="#111" stroke-width="2"/>
+                    <!-- Low-poly roof cockpit -->
+                    <polygon points="52,38 68,22 98,22 112,38" fill="${roofColor}" stroke="#111" stroke-width="2"/>
+                    <!-- Y2K Tinted Windows (Polygon style) -->
+                    <polygon points="56,36 70,25 95,25 107,36" fill="#0c1017" stroke="#333" stroke-width="1"/>
+                    
+                    <!-- Decal racing stripe for Y2K street style -->
+                    ${!isWrecked ? `<polygon points="62,22 65,65 72,65 69,22" fill="#fff" opacity="0.3"/>` : ``}
+
+                    <!-- Wheels (Chunky arcade style rims) -->
+                    <circle cx="45" cy="65" r="13" fill="#111" stroke="#333" stroke-width="3"/>
+                    <circle cx="45" cy="65" r="5" fill="${isTuned ? '#00ffff' : '#bdc3c7'}"/>
+                    
+                    <circle cx="115" cy="65" r="13" fill="#111" stroke="#333" stroke-width="3"/>
+                    <circle cx="115" cy="65" r="5" fill="${isTuned ? '#00ffff' : '#bdc3c7'}"/>
+
+                    <!-- Damage details if wrecked -->
+                    ${isWrecked ? `<path d="M 30 50 L 40 55 M 120 50 L 110 58" stroke="#000" stroke-width="3"/>` : ``}
                 </g>
             </svg>`;
         }
@@ -334,13 +326,13 @@
                 let car = { ...carTemplate, price: finalPrice, condition: condition, originalCondition: condition, baseTierLevel: baseTierLevel, currentTierLevel: finalTier, invested: finalPrice, isFixed: false };
                 currentOffers.push(car);
                 
-                newHTML += `<div class="car-card tier-${car.tier}" onclick="selectCar(${currentOffers.length - 1})"><div class="tier-badge badge-${car.tier}">${car.tier}</div><h3>${car.name}</h3><div class="car-icon-container">${getCarVectorSVG(car.tier, car.condition, 90, 50)}</div><div class="car-info-row"><div>Cond: <span style="color:white;">${car.condition}</span></div><div>Price: <span style="color:var(--gold)">${formatCurrency(car.price)}</span></div></div></div>`;
+                newHTML += `<div class="car-card tier-${car.tier}" onclick="selectCar(${currentOffers.length - 1})"><div class="tier-badge badge-${car.tier}">${car.tier}</div><h3>${car.name}</h3><div class="car-icon-container">${getY2KCarSVG(car.tier, car.condition, 90, 50)}</div><div class="car-info-row"><div>Cond: <span style="color:white;">${car.condition}</span></div><div>Price: <span style="color:var(--gold)">${formatCurrency(car.price)}</span></div></div></div>`;
             }
             grid.innerHTML = newHTML; 
         }
 
         function simulateGameLoad() {
-            document.getElementById("bootCarIcon").innerHTML = getCarVectorSVG("collector", "Tuned Beast", 140, 90);
+            document.getElementById("bootCarIcon").innerHTML = getY2KCarSVG("collector", "Tuned Beast", 140, 90);
             const loadingText = document.getElementById("loadingText");
             
             animateProgressBar(document.getElementById("globalProgressBar"), 1500, () => {
@@ -373,7 +365,7 @@
 
         function updateActionArea() {
             document.getElementById("selectedCarName").innerText = activeCar.name;
-            document.getElementById("actionCarIcon").innerHTML = getCarVectorSVG(activeCar.tier, activeCar.condition, 120, 75);
+            document.getElementById("actionCarIcon").innerHTML = getY2KCarSVG(activeCar.tier, activeCar.condition, 120, 75);
 
             let fixCost = activeCar.condition === "Wrecked" ? activeCar.price : (activeCar.condition === "Worn" ? activeCar.price * 0.50 : activeCar.price * 0.25);
             let canFix = !activeCar.isFixed && activeCar.condition !== "Ruined" && activeCar.condition !== "Tuned Beast";
