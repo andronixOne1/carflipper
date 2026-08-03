@@ -140,7 +140,7 @@
         
         const conditions = ["Wrecked", "Worn", "Clean"];
         
-        // PERFECTLY BALANCED MATH (All Base Tiers EV ~ 0.92 to 0.95)
+        // 5-TIER MATH MODEL (RTP ~94.5% - 95.5%)
         const potentialTiers = [
             { id: 0, winChance: 0.78, pool: [{min: 1.01, max: 1.15, c: 80}, {min: 1.16, max: 1.50, c: 15}, {min: 1.51, max: 2.50, c: 5}] }, 
             { id: 1, winChance: 0.60, pool: [{min: 1.01, max: 1.30, c: 75}, {min: 1.31, max: 2.50, c: 18}, {min: 2.51, max: 5.00, c: 6}, {min: 5.01, max: 10.00, c: 1}] }, 
@@ -148,6 +148,51 @@
             { id: 3, winChance: 0.25, pool: [{min: 1.05, max: 2.00, c: 65}, {min: 2.01, max: 5.00, c: 22}, {min: 5.01, max: 15.00, c: 10}, {min: 15.01, max: 50.00, c: 3}] }, 
             { id: 4, winChance: 0.12, pool: [{min: 1.05, max: 2.00, c: 70}, {min: 2.01, max: 10.00, c: 20}, {min: 10.01, max: 50.00, c: 8}, {min: 50.01, max: 250.00, c: 2}] } 
         ];
+
+        // 20+ Fun Fail Messages
+        const repairEvents = {
+            fail: [
+                "💥 Mechanic broke a leg mid-repair! Engine ruined.",
+                "🤦 Mechanic dropped your engine block! Severe damage.",
+                "🎰 Mechanic gambled your money away and damaged parts.",
+                "⚡ Mechanic wired the battery backwards and fried electronics!",
+                "🔥 Mechanic used a blowtorch near the gas tank. Oops.",
+                "🦝 A family of raccoons moved into the engine bay.",
+                "🛸 Alien abduction reported at the garage. Car returned as a cube.",
+                "🔨 Mechanic sneezed while holding a sledgehammer. Totaled.",
+                "🌊 Left the windows down during a flash flood in the shop.",
+                "🌪️ Mechanic accidentally built a tornado machine instead of an engine.",
+                "🧀 Mechanic tried to fix the radiator with melted cheese.",
+                "🦍 A stray silverback gorilla got loose in the garage.",
+                "💥 Lift failure! The car plummeted 10 feet onto its roof.",
+                "🚜 Mechanic backed over it with a forklift.",
+                "🔥 Spontaneous combustion! Nobody knows why.",
+                "🐭 Rats chewed through the entire wiring harness.",
+                "🎨 Mechanic painted it invisible and now we can't find it.",
+                "⚡ Struck by indoor lightning. Don't ask how.",
+                "💣 Mechanic installed a 'nitro' button that was actually self-destruct.",
+                "🦈 Dropped it into the shop's shark tank.",
+                "🪄 Mechanic tried a magic trick and made the chassis disappear.",
+                "🪚 Mechanic sawed the car in half by mistake.",
+                "🧲 Turned the car into a giant electromagnet. It's stuck to the ceiling.",
+                "☢️ Radioactive coolant leak. The car is now glowing and unsafe."
+            ],
+            shoddy: [
+                "🍺 Mechanic was hungover, but duct-taped the bumper (+1 Tier).",
+                "🌾 Mechanic used parts from an old lawnmower (+1 Tier).",
+                "🛠️ Mechanic patched the leak with chewing gum (+1 Tier)."
+            ],
+            success: [
+                "✨ Mechanic worked overtime and restored it clean (+1 Tier)!",
+                "🏎️ Mechanic tuned the engine to factory perfection (+1 Tier)!",
+                "🧼 Mechanic buffed out every scratch till it shined (+1 Tier)!"
+            ],
+            jackpot: [
+                "🎂 Mechanic gave you a free twin-turbo upgrade (+2 Tiers)!",
+                "🚀 Mechanic secretly installed a nitrous system (+2 Tiers)!",
+                "👑 Mechanic accidentally turned your car into a street legend (+2 Tiers)!"
+            ]
+        };
 
         let balance = 5000;
         let currentOffers = [];
@@ -266,16 +311,39 @@
                 bannerEl.style.display = "block"; bannerEl.className = lastRepairBanner.className; bannerEl.innerText = lastRepairBanner.text;
             }
 
-            if (canFix) {
+            let btnFix = document.getElementById("btnFix");
+            let btnSell = document.getElementById("btnSell");
+
+            // Instant "Go Back" for Bricked Cars
+            if (activeCar.condition === "Ruined") {
+                btnFix.style.display = "none";
+                
+                btnSell.innerText = "Go Back";
+                btnSell.onclick = startRound;
+                btnSell.style.background = "transparent";
+                btnSell.style.border = "1px solid #555";
+                btnSell.style.color = "#ccc";
+            } else if (canFix) {
                 html += `<div style="background: rgba(255,215,0,0.1); padding: 12px; border-radius: 6px; margin-top: 15px; border: 1px dashed var(--gold);"><p style="margin:0 0 5px 0; color: var(--gold); font-size: 0.9rem;"><strong>Tuning Shop:</strong></p><p style="margin:0; font-size: 0.85rem; color: #ccc;">Pay ${formatCurrency(fixCost)} to upgrade tier. Fails will RUIN the car entirely.</p></div>`;
-                document.getElementById("btnFix").style.display = "block";
-                document.getElementById("btnFix").innerText = `Tune Up (-${formatCurrency(fixCost)})`;
-                document.getElementById("btnFix").disabled = balance < fixCost;
-                document.getElementById("btnSell").innerText = `Sell As Is`;
+                btnFix.style.display = "block";
+                btnFix.innerText = `Tune Up (-${formatCurrency(fixCost)})`;
+                btnFix.disabled = balance < fixCost;
+                
+                btnSell.innerText = `Sell As Is`;
+                btnSell.onclick = startSellPhase;
+                btnSell.style.background = "var(--win)";
+                btnSell.style.border = "none";
+                btnSell.style.color = "white";
             } else {
-                document.getElementById("btnFix").style.display = "none";
-                document.getElementById("btnSell").innerText = activeCar.condition === "Ruined" ? `Scrap Car` : `Sell Car`;
+                btnFix.style.display = "none";
+                
+                btnSell.innerText = `Sell Car`;
+                btnSell.onclick = startSellPhase;
+                btnSell.style.background = "var(--win)";
+                btnSell.style.border = "none";
+                btnSell.style.color = "white";
             }
+            
             document.getElementById("selectedCarDetails").innerHTML = html;
         }
 
@@ -288,17 +356,21 @@
             balance -= fixCost; activeCar.invested += fixCost; activeCar.isFixed = true; 
 
             animateProgressBar(document.getElementById("repairProgressBar"), 1000, () => {
-                let roll = Math.random(); let bTier = activeCar.baseTierLevel;
+                let roll = Math.random(); 
+                let bTier = activeCar.baseTierLevel;
+                let failMsgs = repairEvents.fail;
+                let randomFailMsg = failMsgs[Math.floor(Math.random() * failMsgs.length)];
+
                 if (activeCar.condition === "Wrecked") {
-                    if (roll <= 0.35) { activeCar.condition = "Ruined"; lastRepairBanner = { className: "repair-fail", text: "Totaled in the shop! (BRICKED)" }; }
-                    else if (roll <= 0.70) { activeCar.currentTierLevel = Math.min(4, bTier + 1); activeCar.condition = "Repaired"; lastRepairBanner = { className: "repair-shoddy", text: "Decent fix! (+1 Tier)" }; }
-                    else { activeCar.currentTierLevel = Math.min(4, bTier + 2); activeCar.condition = "Tuned Beast"; lastRepairBanner = { className: "repair-jackpot", text: "Perfect Rebuild! (+2 Tiers)" }; }
+                    if (roll <= 0.35) { activeCar.condition = "Ruined"; lastRepairBanner = { className: "repair-fail", text: randomFailMsg }; }
+                    else if (roll <= 0.70) { activeCar.currentTierLevel = Math.min(4, bTier + 1); activeCar.condition = "Repaired"; lastRepairBanner = { className: "repair-shoddy", text: repairEvents.shoddy[Math.floor(Math.random() * repairEvents.shoddy.length)] }; }
+                    else { activeCar.currentTierLevel = Math.min(4, bTier + 2); activeCar.condition = "Tuned Beast"; lastRepairBanner = { className: "repair-jackpot", text: repairEvents.jackpot[Math.floor(Math.random() * repairEvents.jackpot.length)] }; }
                 } else if (activeCar.condition === "Worn") {
-                    if (roll <= 0.20) { activeCar.condition = "Ruined"; lastRepairBanner = { className: "repair-fail", text: "Mechanic botched it! (BRICKED)" }; }
-                    else if (roll <= 0.85) { activeCar.currentTierLevel = Math.min(4, bTier + 1); activeCar.condition = "Repaired"; lastRepairBanner = { className: "repair-success", text: "Cleaned up nicely! (+1 Tier)" }; }
-                    else { activeCar.currentTierLevel = Math.min(4, bTier + 2); activeCar.condition = "Tuned Beast"; lastRepairBanner = { className: "repair-jackpot", text: "Secret engine swap! (+2 Tiers)" }; }
+                    if (roll <= 0.20) { activeCar.condition = "Ruined"; lastRepairBanner = { className: "repair-fail", text: randomFailMsg }; }
+                    else if (roll <= 0.85) { activeCar.currentTierLevel = Math.min(4, bTier + 1); activeCar.condition = "Repaired"; lastRepairBanner = { className: "repair-success", text: repairEvents.success[Math.floor(Math.random() * repairEvents.success.length)] }; }
+                    else { activeCar.currentTierLevel = Math.min(4, bTier + 2); activeCar.condition = "Tuned Beast"; lastRepairBanner = { className: "repair-jackpot", text: repairEvents.jackpot[Math.floor(Math.random() * repairEvents.jackpot.length)] }; }
                 } else if (activeCar.condition === "Clean") {
-                    if (roll <= 0.15) { activeCar.condition = "Ruined"; lastRepairBanner = { className: "repair-fail", text: "Engine blew on dyno... (BRICKED)" }; }
+                    if (roll <= 0.15) { activeCar.condition = "Ruined"; lastRepairBanner = { className: "repair-fail", text: randomFailMsg }; }
                     else { activeCar.currentTierLevel = Math.min(4, bTier + 1); activeCar.condition = "Tuned Beast"; lastRepairBanner = { className: "repair-success", text: "Flawless Tune! (+1 Tier Max)" }; }
                 }
                 updateBalance(); updateActionArea();
@@ -308,9 +380,6 @@
         }
 
         function rollMultiplier(car) {
-            // THE ARPG BRICKING RULE
-            if (car.condition === "Ruined") return 0; 
-            
             let pTier = potentialTiers[car.currentTierLevel];
             if (Math.random() > pTier.winChance) return 0; 
             
@@ -352,7 +421,7 @@
             document.getElementById("btnSkip").style.display = "none"; document.getElementById("sellProgressContainer").style.display = "none";
             let multEl = document.getElementById("multiplierDisplay"); multEl.style.display = "block";
             if (finalMult === 0) {
-                document.getElementById("statusText").innerText = activeCar.condition === "Ruined" ? "Car is destroyed. Sent to scrapyard." : "Total Loss. Deal fell through.";
+                document.getElementById("statusText").innerText = "Total Loss. Deal fell through.";
                 multEl.innerText = "0.00x"; multEl.className = "multiplier-display crashed";
                 document.getElementById("coinsWonDisplay").innerHTML = `Loss: <span>-${formatCurrency(activeCar.invested)}</span>`;
                 document.getElementById("btnNextRound").style.display = "block";
