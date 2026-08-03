@@ -79,7 +79,6 @@
         }
         .car-card:active { transform: scale(0.96); }
         
-        /* Tier Underglow logic applied in JS via classes, but defaults here */
         .car-card.tier-cheap:hover { box-shadow: 0 0 15px rgba(164, 176, 190, 0.3); border-color: var(--cheap); }
         .car-card.tier-normal:hover { box-shadow: 0 0 20px rgba(0, 210, 255, 0.4); border-color: var(--accent); }
         .car-card.tier-luxury:hover { box-shadow: 0 0 20px rgba(255, 211, 42, 0.4); border-color: var(--gold); }
@@ -131,7 +130,7 @@
 <body>
     <div id="global-loader">
         <h1>Underground Garage</h1>
-        <div id="bootCarIcon" style="margin-bottom: 15px; filter: drop-shadow(0 0 10px rgba(255,63,52,0.8));"></div>
+        <div id="bootCarIcon" style="margin-bottom: 15px;"></div>
         <div class="global-progress-container"><div class="global-progress-bar" id="globalProgressBar"></div></div>
         <div class="loading-text" id="loadingText">Connecting to Street Network...</div>
     </div>
@@ -218,22 +217,82 @@
         let currentFinalMult = 0;
         let roundCount = 0; 
 
-        function getCarPixelArtSVG(tier, condition, width = 80, height = 50) {
-            let baseColor = tier === "cheap" ? "#a4b0be" : (tier === "normal" ? "#00d2ff" : (tier === "luxury" ? "#ffd32a" : "#ff3f34"));
-            let windowColor = "#1e272e";
-            let pixels = `<rect x="2" y="11" width="28" height="5" fill="${baseColor}"/><rect x="10" y="8" width="12" height="4" fill="${baseColor}"/><rect x="22" y="10" width="6" height="3" fill="${baseColor}"/><rect x="13" y="9" width="8" height="2" fill="${windowColor}"/><rect x="6" y="13" width="6" height="6" fill="#111"/><rect x="7" y="14" width="4" height="4" fill="#ddd"/><rect x="21" y="13" width="6" height="6" fill="#111"/><rect x="22" y="14" width="4" height="4" fill="#ddd"/>`;
-            let effects = "";
-            if (condition === "Wrecked" || condition === "Ruined") {
-                effects = `<rect x="6" y="2" width="2" height="2" fill="#555" opacity="0.8"/><rect x="24" y="10" width="3" height="2" fill="#ff3f34"/>`;
-            } else if (condition === "Clean" || condition === "Repaired" || condition === "Tuned Beast") {
-                effects = `<polygon points="26,3 27,5 29,5 27,7 28,9 26,8 24,9 25,7 23,5 25,5" fill="#ffffff"/>`;
+        // MODERN VECTOR CYBERPUNK CAR GENERATOR
+        function getCarVectorSVG(tier, condition, width = 160, height = 90) {
+            let accent = tier === "cheap" ? "#a4b0be" : (tier === "normal" ? "#00d2ff" : (tier === "luxury" ? "#ffd32a" : "#ff3f34"));
+            
+            let path = ""; let windows = ""; let w1x = 35, w2x = 110;
+            
+            if (tier === "cheap") { // Hatchback
+                path = "M 15 65 L 15 45 L 35 30 L 80 30 L 110 45 L 135 45 L 135 65 Z";
+                windows = `<polygon points="38,32 75,32 75,45 25,45" fill="#111" stroke="${accent}" stroke-width="1"/><polygon points="78,32 105,32 108,45 78,45" fill="#111" stroke="${accent}" stroke-width="1"/>`;
+                w1x = 35; w2x = 110;
+            } else if (tier === "normal") { // Coupe
+                path = "M 10 65 L 15 45 L 45 32 L 85 32 L 125 45 L 145 45 L 145 65 Z";
+                windows = `<polygon points="48,34 82,34 82,45 28,45" fill="#111" stroke="${accent}" stroke-width="1"/><polygon points="85,34 118,34 122,45 85,45" fill="#111" stroke="${accent}" stroke-width="1"/>`;
+                w1x = 35; w2x = 120;
+            } else if (tier === "luxury") { // Supercar
+                path = "M 5 65 L 15 45 L 55 35 L 95 35 L 135 45 L 150 50 L 150 65 Z M 10 45 L 15 25 L 30 25 L 25 45 Z";
+                windows = `<polygon points="58,37 92,37 102,45 42,45" fill="#111" stroke="${accent}" stroke-width="1"/>`;
+                w1x = 35; w2x = 125;
+            } else { // Hypercar
+                path = "M 5 65 L 20 40 L 65 35 L 105 38 L 145 48 L 155 58 L 155 65 Z M 15 40 L 25 15 L 45 15 L 35 40 Z M 75 35 L 85 25 L 95 25 L 85 35 Z";
+                windows = `<polygon points="65,37 95,39 105,48 45,48" fill="#111" stroke="${accent}" stroke-width="1"/>`;
+                w1x = 35; w2x = 125;
             }
-            return `<svg viewBox="0 0 32 20" width="${width}" height="${height}" style="image-rendering: pixelated; filter: drop-shadow(0 5px 8px rgba(0,0,0,0.8));">${pixels}${effects}</svg>`;
+
+            let isWrecked = condition === "Wrecked" || condition === "Ruined";
+            let isTuned = condition === "Tuned Beast";
+            
+            let transform = isWrecked ? `transform="rotate(-3 80 45) translate(0 5)"` : ``; 
+            let opacity = isWrecked ? `0.5` : `1`;
+            let uniqueId = Math.random().toString(36).substring(2, 9); // Prevents SVG filter bleed
+            
+            let defs = `
+                <defs>
+                    <filter id="glow-${uniqueId}" x="-50%" y="-50%" width="200%" height="200%">
+                        <feGaussianBlur stdDeviation="${isTuned ? '4' : '1.5'}" result="blur" />
+                        <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                    </filter>
+                    <linearGradient id="paint-${uniqueId}" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" stop-color="${isWrecked ? '#1a1c20' : '#2a2e3d'}" />
+                        <stop offset="100%" stop-color="#090a0f" />
+                    </linearGradient>
+                </defs>
+            `;
+
+            let underglow = isTuned ? `<ellipse cx="80" cy="70" rx="65" ry="8" fill="${accent}" filter="url(#glow-${uniqueId})" opacity="0.6"/>` : ``;
+            let exhaust = isTuned ? `<path d="M 5 60 L -15 55 L -5 65 L -20 68 L 0 70 Z" fill="#ff9f43" filter="url(#glow-${uniqueId})"><animate attributeName="opacity" values="0.4;1;0.4" dur="0.1s" repeatCount="indefinite"/></path>` : ``;
+            let smoke = isWrecked ? `<circle cx="30" cy="30" r="15" fill="#555" opacity="0.5"><animate attributeName="cy" values="30;0" dur="2s" repeatCount="indefinite"/><animate attributeName="opacity" values="0.5;0" dur="2s" repeatCount="indefinite"/></circle>` : ``;
+
+            let rims = isTuned ? accent : (isWrecked ? '#222' : '#777');
+            let wheels = `
+                <circle cx="${w1x}" cy="65" r="14" fill="#050505" stroke="${isWrecked ? '#222' : accent}" stroke-width="${isTuned ? '3' : '2'}" filter="${isTuned ? `url(#glow-${uniqueId})` : ''}"/>
+                <circle cx="${w2x}" cy="65" r="14" fill="#050505" stroke="${isWrecked ? '#222' : accent}" stroke-width="${isTuned ? '3' : '2'}" filter="${isTuned ? `url(#glow-${uniqueId})` : ''}"/>
+                <circle cx="${w1x}" cy="65" r="6" fill="none" stroke="${rims}" stroke-width="2" />
+                <circle cx="${w2x}" cy="65" r="6" fill="none" stroke="${rims}" stroke-width="2" />
+                <circle cx="${w1x}" cy="65" r="2" fill="${rims}" />
+                <circle cx="${w2x}" cy="65" r="2" fill="${rims}" />
+            `;
+            
+            let body = `<path d="${path}" fill="url(#paint-${uniqueId})" stroke="${accent}" stroke-width="${isWrecked ? '1' : '2'}" opacity="${opacity}" filter="url(#glow-${uniqueId})" />`;
+            let cracks = isWrecked ? `<path d="M 50 38 L 55 43 M 65 38 L 60 43 M 35 60 L 40 50" stroke="#fff" stroke-width="1" opacity="0.4"/>` : ``;
+
+            return `<svg viewBox="0 0 160 90" width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
+                ${defs}
+                ${underglow}
+                ${smoke}
+                <g ${transform}>
+                    ${exhaust}
+                    ${body}
+                    ${windows}
+                    ${cracks}
+                    ${wheels}
+                </g>
+            </svg>`;
         }
 
-        function updateBalance() { 
-            document.getElementById("balanceDisplay").innerText = balance.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}); 
-        }
+        function updateBalance() { document.getElementById("balanceDisplay").innerText = balance.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}); }
         function topUp() { balance += 2500; updateBalance(); }
         function randomInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
         function formatCurrency(num) { return "$" + num.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}); }
@@ -275,13 +334,13 @@
                 let car = { ...carTemplate, price: finalPrice, condition: condition, originalCondition: condition, baseTierLevel: baseTierLevel, currentTierLevel: finalTier, invested: finalPrice, isFixed: false };
                 currentOffers.push(car);
                 
-                newHTML += `<div class="car-card tier-${car.tier}" onclick="selectCar(${currentOffers.length - 1})"><div class="tier-badge badge-${car.tier}">${car.tier}</div><h3>${car.name}</h3><div class="car-icon-container">${getCarPixelArtSVG(car.tier, car.condition, 90, 50)}</div><div class="car-info-row"><div>Cond: <span style="color:white;">${car.condition}</span></div><div>Price: <span style="color:var(--gold)">${formatCurrency(car.price)}</span></div></div></div>`;
+                newHTML += `<div class="car-card tier-${car.tier}" onclick="selectCar(${currentOffers.length - 1})"><div class="tier-badge badge-${car.tier}">${car.tier}</div><h3>${car.name}</h3><div class="car-icon-container">${getCarVectorSVG(car.tier, car.condition, 90, 50)}</div><div class="car-info-row"><div>Cond: <span style="color:white;">${car.condition}</span></div><div>Price: <span style="color:var(--gold)">${formatCurrency(car.price)}</span></div></div></div>`;
             }
             grid.innerHTML = newHTML; 
         }
 
         function simulateGameLoad() {
-            document.getElementById("bootCarIcon").innerHTML = getCarPixelArtSVG("collector", "Tuned Beast", 140, 90);
+            document.getElementById("bootCarIcon").innerHTML = getCarVectorSVG("collector", "Tuned Beast", 140, 90);
             const loadingText = document.getElementById("loadingText");
             
             animateProgressBar(document.getElementById("globalProgressBar"), 1500, () => {
@@ -314,7 +373,7 @@
 
         function updateActionArea() {
             document.getElementById("selectedCarName").innerText = activeCar.name;
-            document.getElementById("actionCarIcon").innerHTML = getCarPixelArtSVG(activeCar.tier, activeCar.condition, 120, 75);
+            document.getElementById("actionCarIcon").innerHTML = getCarVectorSVG(activeCar.tier, activeCar.condition, 120, 75);
 
             let fixCost = activeCar.condition === "Wrecked" ? activeCar.price : (activeCar.condition === "Worn" ? activeCar.price * 0.50 : activeCar.price * 0.25);
             let canFix = !activeCar.isFixed && activeCar.condition !== "Ruined" && activeCar.condition !== "Tuned Beast";
