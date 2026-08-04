@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Car Flipping Simulator - Y2K Underground Edition</title>
+    <!-- Lottie Player for Animations -->
+    <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;700&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
     <style>
         * { box-sizing: border-box; }
@@ -84,12 +86,17 @@
         .car-card.tier-luxury:hover { box-shadow: 0 0 20px rgba(255, 211, 42, 0.4); border-color: var(--gold); }
         .car-card.tier-collector:hover { box-shadow: 0 0 25px rgba(255, 63, 52, 0.6); border-color: var(--mythic); }
 
-        .car-card h3 { color: white; font-size: 1.1rem; line-height: 1.1; min-height: 2.2rem; display: flex; align-items: center; }
-        .car-icon-container { width: 100%; height: 70px; display: flex; align-items: center; justify-content: center; background: radial-gradient(circle, rgba(255,255,255,0.05) 0%, transparent 80%); border-bottom: 2px solid #222; margin-bottom: 5px; }
-        .car-info-row { display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 0.85rem; color: #888; font-weight: 700; }
+        .car-card h3 { color: white; font-size: 1.1rem; line-height: 1.1; min-height: 2.2rem; display: flex; align-items: center; z-index: 2; }
+        
+        .car-icon-container { 
+            width: 100%; height: 90px; display: flex; align-items: center; justify-content: center; 
+            background: #000; border: 1px solid #333; margin-bottom: 5px; position: relative; overflow: hidden; border-radius: 4px;
+        }
+        
+        .car-info-row { display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 0.85rem; color: #888; font-weight: 700; z-index: 2; }
         .car-info-row span { color: white; }
 
-        .tier-badge { position: absolute; top: 0; right: 0; padding: 4px 10px; font-family: var(--font-racing); font-style: italic; font-size: 0.8rem; letter-spacing: 1px; clip-path: polygon(0 0, 100% 0, 100% 100%, 10px 100%); }
+        .tier-badge { position: absolute; top: 0; right: 0; padding: 4px 10px; font-family: var(--font-racing); font-style: italic; font-size: 0.8rem; letter-spacing: 1px; clip-path: polygon(0 0, 100% 0, 100% 100%, 10px 100%); z-index: 5; }
         .badge-cheap { background: var(--cheap); color: #000; }
         .badge-normal { background: var(--accent); color: #000; }
         .badge-luxury { background: var(--gold); color: #000; }
@@ -102,13 +109,14 @@
         .btn-fix { background: linear-gradient(90deg, #ffc048, var(--gold)); }
         .btn-cancel { background: transparent; border: 2px solid #555; color: #aaa; clip-path: none; transform: none; font-style: normal; }
         
-        #overlay-loader { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(9, 10, 15, 0.95); backdrop-filter: blur(5px); border-radius: 8px; align-items: center; justify-content: center; flex-direction: column; z-index: 10; }
+        #overlay-loader { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(9, 10, 15, 0.95); backdrop-filter: blur(5px); border-radius: 8px; align-items: center; justify-content: center; flex-direction: column; z-index: 10; transition: opacity 0.3s ease; }
         #repair-result-banner { display: none; margin-top: 15px; padding: 12px; font-family: var(--font-racing); font-size: 1rem; text-transform: uppercase; letter-spacing: 1px; animation: fadeIn 0.4s ease-out; clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px); }
         
+        /* Updated Repair Colors */
         .repair-fail { background: rgba(255, 63, 52, 0.1); border-left: 4px solid var(--lose); color: var(--lose); text-shadow: 0 0 8px rgba(255,63,52,0.4); }
-        .repair-shoddy { background: rgba(255, 211, 42, 0.1); border-left: 4px solid var(--gold); color: var(--gold); }
-        .repair-success { background: rgba(11, 232, 129, 0.1); border-left: 4px solid var(--win); color: var(--win); }
-        .repair-jackpot { background: rgba(255, 63, 52, 0.2); border-left: 4px solid var(--mythic); color: var(--mythic); text-shadow: 0 0 10px rgba(255,63,52,0.6); font-size: 1.1rem !important; }
+        .repair-shoddy { background: rgba(255, 211, 42, 0.1); border-left: 4px solid var(--gold); color: var(--gold); text-shadow: 0 0 8px rgba(255,211,42,0.4); }
+        .repair-success { background: rgba(0, 210, 255, 0.1); border-left: 4px solid var(--accent); color: var(--accent); text-shadow: 0 0 8px rgba(0,210,255,0.4); font-size: 1.05rem !important; }
+        .repair-jackpot { background: rgba(11, 232, 129, 0.15); border-left: 4px solid var(--win); color: var(--win); text-shadow: 0 0 10px rgba(11,232,129,0.7); font-size: 1.15rem !important; }
         
         #result-area { display: none; margin: 15px; padding: 30px 15px; background: linear-gradient(180deg, rgba(31, 40, 51, 0.5) 0%, rgba(9, 10, 15, 0.9) 100%); border-top: 2px solid var(--accent); box-shadow: 0 10px 30px rgba(0, 210, 255, 0.1); position: relative; }
         .status-text { font-family: var(--font-racing); font-style: italic; font-size: 1.3rem; min-height: 2.8rem; color: var(--accent); margin-bottom: 10px; display: flex; align-items: center; justify-content: center; letter-spacing: 1px; text-shadow: 0 0 10px rgba(0, 210, 255, 0.4); }
@@ -122,15 +130,23 @@
         
         .spinner { width: 40px; height: 40px; border: 4px solid rgba(255, 211, 42, 0.2); border-top-color: var(--gold); border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 15px; box-shadow: 0 0 15px rgba(255, 211, 42, 0.2); }
         
+        /* Transition Animation for Repair States */
+        .power-flash { animation: powerUp 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+        
         @keyframes spin { 100% { transform: rotate(360deg); } }
         @keyframes pulse { 0% { opacity: 0.4; } 50% { opacity: 1; } 100% { opacity: 0.4; } }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes powerUp {
+            0% { filter: brightness(1); transform: scale(1); }
+            30% { filter: brightness(2.5) contrast(1.2); transform: scale(1.05); box-shadow: 0 0 30px var(--accent); }
+            100% { filter: brightness(1); transform: scale(1); box-shadow: none; }
+        }
     </style>
 </head>
-<body>
+    <body>
     <div id="global-loader">
         <h1>Underground Garage</h1>
-        <div id="bootCarIcon" style="margin-bottom: 15px;"></div>
+        <div id="bootCarIcon" class="car-icon-container" style="width: 200px; height: 120px; border: 2px solid var(--accent); margin-bottom: 15px; background: transparent;"></div>
         <div class="global-progress-container"><div class="global-progress-bar" id="globalProgressBar"></div></div>
         <div class="loading-text" id="loadingText">Connecting to Street Network...</div>
     </div>
@@ -153,7 +169,7 @@
                 <div class="global-progress-container" style="max-width: 250px;"><div class="global-progress-bar" style="background: var(--gold); box-shadow: 0 0 15px var(--gold);" id="repairProgressBar"></div></div>
             </div>
             
-            <div id="actionCarIcon" class="car-icon-container" style="width:160px; height:90px; margin: 0 auto 15px auto; border:none; background: transparent;"></div>
+            <div id="actionCarIcon" class="car-icon-container" style="width:100%; max-width:400px; height:200px; margin: 0 auto 15px auto; border-radius: 8px;"></div>
             <h2 id="selectedCarName" style="margin-top:0; font-size: 1.8rem; text-shadow: 0 2px 4px rgba(0,0,0,0.8);">Car Name</h2>
             <div id="selectedCarDetails" style="font-size: 1rem; line-height: 1.5; margin-top: 10px;"></div>
             <div id="repair-result-banner"></div>
@@ -175,7 +191,7 @@
             <button id="btnNextRound" onclick="startRound()" style="display:none; margin: 0 auto; width: 100%; padding: 15px; font-size: 1.2rem;">Back to Streets</button>
         </div>
     </div>
-    <script>
+        <script>
         const fleet = [
             { name: "Qenault Uwingo", tier: "cheap", basePrice: 10 },
             { name: "Jonda Divic", tier: "cheap", basePrice: 50 },
@@ -197,37 +213,16 @@
             { id: 4, winChance: 0.13, pool: [{min: 1.05, max: 2.00, c: 75}, {min: 2.01, max: 10.00, c: 15}, {min: 10.01, max: 50.00, c: 8}, {min: 50.01, max: 250.00, c: 2}] } 
         ];
 
-        // Restored general public-friendly repair messages
         const repairEvents = {
             fail: [
-                "💥 Mechanic broke a leg mid-repair! Engine ruined.",
-                "🤦 Mechanic dropped your engine block! Severe damage.",
-                "🎰 Mechanic gambled your money away and damaged parts.",
-                "⚡ Mechanic wired the battery backwards and fried electronics!",
-                "🔥 Mechanic used a blowtorch near the gas tank. Oops.",
-                "🦝 A family of raccoons moved into the engine bay.",
-                "🛸 Alien abduction reported at the garage. Car returned as a cube.",
-                "🔨 Mechanic sneezed while holding a sledgehammer. Totaled.",
-                "🌊 Left the windows down during a flash flood in the shop.",
-                "🌪️ Mechanic accidentally built a tornado machine instead of an engine.",
-                "🧀 Mechanic tried to fix the radiator with melted cheese.",
-                "🦍 A stray silverback gorilla got loose in the garage."
+                "💥 Mechanic broke a leg mid-repair! Engine ruined.", "🤦 Mechanic dropped your engine block! Severe damage.", "🎰 Mechanic gambled your money away and damaged parts.",
+                "⚡ Mechanic wired the battery backwards and fried electronics!", "🔥 Mechanic used a blowtorch near the gas tank. Oops.", "🦝 A family of raccoons moved into the engine bay.",
+                "🛸 Alien abduction reported at the garage. Car returned as a cube.", "🔨 Mechanic sneezed while holding a sledgehammer. Totaled.", "🌊 Left the windows down during a flash flood in the shop.",
+                "🌪️ Mechanic accidentally built a tornado machine instead of an engine.", "🧀 Mechanic tried to fix the radiator with melted cheese.", "🦍 A stray silverback gorilla got loose in the garage."
             ],
-            shoddy: [
-                "🍺 Mechanic was hungover, but duct-taped the bumper (+1 Tier).",
-                "🌾 Mechanic used parts from an old lawnmower (+1 Tier).",
-                "🛠️ Mechanic patched the leak with chewing gum (+1 Tier)."
-            ],
-            success: [
-                "✨ Mechanic worked overtime and restored it clean (+1 Tier)!",
-                "🏎️ Mechanic tuned it up to factory perfection (+1 Tier)!",
-                "🧼 Mechanic buffed out every scratch till it shined (+1 Tier)!"
-            ],
-            jackpot: [
-                "🎂 Mechanic gave you a free mystery upgrade (+2 Tiers)!",
-                "🚀 Mechanic secretly installed a nitro boost (+2 Tiers)!",
-                "👑 Mechanic accidentally turned your car into a street legend (+2 Tiers)!"
-            ]
+            shoddy: ["🍺 Mechanic was hungover, but duct-taped the bumper (+1 Tier).", "🌾 Mechanic used parts from an old lawnmower (+1 Tier).", "🛠️ Mechanic patched the leak with chewing gum (+1 Tier)."],
+            success: ["✨ Mechanic worked overtime and restored it clean (+1 Tier)!", "🏎️ Mechanic tuned it up to factory perfection (+1 Tier)!", "🧼 Mechanic buffed out every scratch till it shined (+1 Tier)!"],
+            jackpot: ["🎂 Mechanic gave you a free mystery upgrade (+2 Tiers)!", "🚀 Mechanic secretly installed a nitro boost (+2 Tiers)!", "👑 Mechanic accidentally turned your car into a street legend (+2 Tiers)!"]
         };
 
         let balance = 5000;
@@ -238,50 +233,36 @@
         let currentFinalMult = 0;
         let roundCount = 0; 
 
-        // Y2K LOW-POLY / CELL-SHADED RACING GAME CAR GENERATOR
-        function getY2KCarSVG(tier, condition, width = 160, height = 90) {
-            let bodyColor = tier === "cheap" ? "#7f8c8d" : (tier === "normal" ? "#2980b9" : (tier === "luxury" ? "#f1c40f" : "#e74c3c"));
-            let roofColor = tier === "cheap" ? "#95a5a6" : (tier === "normal" ? "#3498db" : (tier === "luxury" ? "#f39c12" : "#c0392b"));
-            let isWrecked = condition === "Wrecked" || condition === "Ruined";
-            let isTuned = condition === "Tuned Beast";
-
-            if (isWrecked) {
-                bodyColor = "#34495e";
-                roofColor = "#2c3e50";
+        // Generates the image block with appropriate Lottie overlay
+        function getCarVisuals(carName, condition) {
+            let imageState = "mint";
+            let lottieUrl = "";
+            let lottieOpacity = "0.7";
+            
+            if (condition === "Wrecked" || condition === "Ruined") {
+                imageState = "wrecked";
+                lottieUrl = "https://lottie.host/819779df-2f34-4530-86ad-c12e5ebfec98/zZ9Rfy6F7z.json";
+            } else if (condition === "Worn") {
+                imageState = "used";
+                lottieUrl = "https://lottie.host/84bb72ce-23da-4702-8613-333e68df8eb0/G0eXYnDB9o.json";
+                lottieOpacity = "0.4";
+            } else if (condition === "Clean" || condition === "Repaired") {
+                imageState = "mint";
+                lottieUrl = "https://lottie.host/703621df-6b80-4965-8b8d-294b4cf492fb/Z2n8w8T9Vv.json";
+            } else if (condition === "Tuned Beast") {
+                imageState = "tuned";
+                lottieUrl = "https://lottie.host/17eb6da1-2a6c-48c9-8d1f-846101c70e7e/A6N8W6D2W1.json";
+                lottieOpacity = "0.9";
             }
 
-            let glowFilter = isTuned ? `<filter id="y2k-glow"><feGaussianBlur stdDeviation="3" result="coloredBlur"/><feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>` : ``;
-            let underglow = isTuned ? `<ellipse cx="80" cy="72" rx="60" ry="6" fill="#00ffff" opacity="0.8" filter="url(#y2k-glow)"/>` : ``;
-            let transform = isWrecked ? `transform="rotate(-4 80 50) translate(0 4)"` : ``;
+            let fileName = `${carName.replace(/\s+/g, '_').toLowerCase()}_${imageState}.jpg`;
+            let imgSrc = `cars/${fileName}`;
+            let lottieHtml = lottieUrl ? `<lottie-player src="${lottieUrl}" background="transparent" speed="1" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: ${lottieOpacity}; pointer-events: none;" loop autoplay></lottie-player>` : ``;
 
-            return `<svg viewBox="0 0 160 90" width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg" style="filter: drop-shadow(0 6px 4px rgba(0,0,0,0.6));">
-                <defs>${glowFilter}</defs>
-                ${underglow}
-                <g ${transform}>
-                    <!-- Back spoiler / Body accents for Y2K look -->
-                    ${isTuned ? `<polygon points="120,40 135,30 140,35 125,45" fill="#fff" opacity="0.8"/>` : ``}
-                    
-                    <!-- Low-poly chassis body -->
-                    <polygon points="15,65 25,48 55,38 105,38 135,48 145,65" fill="${bodyColor}" stroke="#111" stroke-width="2"/>
-                    <!-- Low-poly roof cockpit -->
-                    <polygon points="52,38 68,22 98,22 112,38" fill="${roofColor}" stroke="#111" stroke-width="2"/>
-                    <!-- Y2K Tinted Windows (Polygon style) -->
-                    <polygon points="56,36 70,25 95,25 107,36" fill="#0c1017" stroke="#333" stroke-width="1"/>
-                    
-                    <!-- Decal racing stripe for Y2K street style -->
-                    ${!isWrecked ? `<polygon points="62,22 65,65 72,65 69,22" fill="#fff" opacity="0.3"/>` : ``}
-
-                    <!-- Wheels (Chunky arcade style rims) -->
-                    <circle cx="45" cy="65" r="13" fill="#111" stroke="#333" stroke-width="3"/>
-                    <circle cx="45" cy="65" r="5" fill="${isTuned ? '#00ffff' : '#bdc3c7'}"/>
-                    
-                    <circle cx="115" cy="65" r="13" fill="#111" stroke="#333" stroke-width="3"/>
-                    <circle cx="115" cy="65" r="5" fill="${isTuned ? '#00ffff' : '#bdc3c7'}"/>
-
-                    <!-- Damage details if wrecked -->
-                    ${isWrecked ? `<path d="M 30 50 L 40 55 M 120 50 L 110 58" stroke="#000" stroke-width="3"/>` : ``}
-                </g>
-            </svg>`;
+            return `<div style="position: relative; width: 100%; height: 100%;">
+                        <img src="${imgSrc}" alt="${carName}" style="width: 100%; height: 100%; object-fit: cover; display: block;" onerror="this.src='https://via.placeholder.com/400x200/1e272e/00d2ff?text=Missing+Image';">
+                        ${lottieHtml}
+                    </div>`;
         }
 
         function updateBalance() { document.getElementById("balanceDisplay").innerText = balance.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}); }
@@ -300,7 +281,7 @@
             }
             requestAnimationFrame(step);
         }
-        function loadMoreCars(count) {
+            function loadMoreCars(count) {
             let grid = document.getElementById("carGrid");
             let newHTML = "";
             let allowCollector = roundCount > 3; 
@@ -326,13 +307,13 @@
                 let car = { ...carTemplate, price: finalPrice, condition: condition, originalCondition: condition, baseTierLevel: baseTierLevel, currentTierLevel: finalTier, invested: finalPrice, isFixed: false };
                 currentOffers.push(car);
                 
-                newHTML += `<div class="car-card tier-${car.tier}" onclick="selectCar(${currentOffers.length - 1})"><div class="tier-badge badge-${car.tier}">${car.tier}</div><h3>${car.name}</h3><div class="car-icon-container">${getY2KCarSVG(car.tier, car.condition, 90, 50)}</div><div class="car-info-row"><div>Cond: <span style="color:white;">${car.condition}</span></div><div>Price: <span style="color:var(--gold)">${formatCurrency(car.price)}</span></div></div></div>`;
+                newHTML += `<div class="car-card tier-${car.tier}" onclick="selectCar(${currentOffers.length - 1})"><div class="tier-badge badge-${car.tier}">${car.tier}</div><h3>${car.name}</h3><div class="car-icon-container">${getCarVisuals(car.name, car.condition)}</div><div class="car-info-row"><div>Cond: <span style="color:white;">${car.condition}</span></div><div>Price: <span style="color:var(--gold)">${formatCurrency(car.price)}</span></div></div></div>`;
             }
             grid.innerHTML = newHTML; 
         }
 
         function simulateGameLoad() {
-            document.getElementById("bootCarIcon").innerHTML = getY2KCarSVG("collector", "Tuned Beast", 140, 90);
+            document.getElementById("bootCarIcon").innerHTML = `<lottie-player src="https://lottie.host/17eb6da1-2a6c-48c9-8d1f-846101c70e7e/A6N8W6D2W1.json" background="transparent" speed="1" style="width: 100%; height: 100%;" loop autoplay></lottie-player>`;
             const loadingText = document.getElementById("loadingText");
             
             animateProgressBar(document.getElementById("globalProgressBar"), 1500, () => {
@@ -360,12 +341,22 @@
             balance -= activeCar.price; updateBalance();
             document.getElementById("selectionPhase").style.display = "none";
             document.getElementById("actionArea").style.display = "block";
-            updateActionArea();
+            // Normal load, no transition flash
+            updateActionArea(false);
         }
 
-        function updateActionArea() {
+        // Added isRepair flag to trigger animation only on state changes
+        function updateActionArea(isRepair = false) {
             document.getElementById("selectedCarName").innerText = activeCar.name;
-            document.getElementById("actionCarIcon").innerHTML = getY2KCarSVG(activeCar.tier, activeCar.condition, 120, 75);
+            
+            let iconEl = document.getElementById("actionCarIcon");
+            iconEl.innerHTML = getCarVisuals(activeCar.name, activeCar.condition);
+            
+            if (isRepair) {
+                iconEl.classList.remove("power-flash");
+                void iconEl.offsetWidth; // Trigger reflow to restart animation
+                iconEl.classList.add("power-flash");
+            }
 
             let fixCost = activeCar.condition === "Wrecked" ? activeCar.price : (activeCar.condition === "Worn" ? activeCar.price * 0.50 : activeCar.price * 0.25);
             let canFix = !activeCar.isFixed && activeCar.condition !== "Ruined" && activeCar.condition !== "Tuned Beast";
@@ -413,7 +404,9 @@
             let fixCost = activeCar.condition === "Wrecked" ? activeCar.price : (activeCar.condition === "Worn" ? activeCar.price * 0.50 : activeCar.price * 0.25);
             if (balance < fixCost) return;
             document.getElementById("btnFix").disabled = true; document.getElementById("btnSell").disabled = true;
-            document.getElementById("overlay-loader").style.display = "flex";
+            let overlay = document.getElementById("overlay-loader");
+            overlay.style.display = "flex";
+            overlay.style.opacity = "1";
 
             balance -= fixCost; activeCar.invested += fixCost; activeCar.isFixed = true; 
 
@@ -433,9 +426,17 @@
                     if (roll <= 0.15) { activeCar.condition = "Ruined"; lastRepairBanner = { className: "repair-fail", text: randomFailMsg }; }
                     else { activeCar.currentTierLevel = Math.min(4, bTier + 1); activeCar.condition = "Tuned Beast"; lastRepairBanner = { className: "repair-success", text: "Flawless Tune! (+1 Tier Max)" }; }
                 }
-                updateBalance(); updateActionArea();
-                document.getElementById("overlay-loader").style.display = "none";
-                document.getElementById("btnSell").disabled = false;
+                
+                updateBalance(); 
+                // Passing 'true' triggers the transition animation
+                updateActionArea(true);
+                
+                // Smoothly fade out the loader overlay
+                overlay.style.opacity = "0";
+                setTimeout(() => { 
+                    overlay.style.display = "none"; 
+                    document.getElementById("btnSell").disabled = false;
+                }, 300);
             });
         }
 
