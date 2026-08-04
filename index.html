@@ -65,7 +65,6 @@
         .container { width: 100%; max-width: 800px; text-align: center; padding: 20px 10px; overflow: hidden; }
         .container > h2 { color: white; font-size: 1.8rem; margin-bottom: 15px; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
         
-        /* Base class for smoothly swapping game screens */
         .game-screen { display: none; width: 100%; opacity: 0; }
         
         .car-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; padding: 10px; width: 100%; }
@@ -89,9 +88,7 @@
         .car-card.tier-collector:hover { box-shadow: 0 10px 30px rgba(255, 63, 52, 0.5); border-color: var(--mythic); }
 
         .car-card h3 { color: white; font-size: 1.1rem; line-height: 1.1; min-height: 2.2rem; display: flex; align-items: center; z-index: 2; margin-top: 5px; }
-        
         .car-icon-container { width: 100%; height: 110px; display: flex; align-items: center; justify-content: center; background: transparent; border: none; margin-bottom: 5px; position: relative; }
-        
         .car-img { width: 90%; height: 90%; object-fit: contain; z-index: 2; filter: drop-shadow(0 10px 10px rgba(0,0,0,0.9)); transition: 0.4s all ease-out; }
         .car-card:hover .car-img { transform: scale(1.1) translateX(5px); }
 
@@ -120,42 +117,50 @@
         .repair-success { background: rgba(0, 210, 255, 0.1); border-left: 4px solid var(--accent); color: var(--accent); text-shadow: 0 0 8px rgba(0,210,255,0.4); font-size: 1.05rem !important; }
         .repair-jackpot { background: rgba(11, 232, 129, 0.15); border-left: 4px solid var(--win); color: var(--win); text-shadow: 0 0 10px rgba(11,232,129,0.7); font-size: 1.15rem !important; }
         
-        #result-area { margin: 15px; padding: 30px 15px; background: linear-gradient(180deg, rgba(31, 40, 51, 0.5) 0%, rgba(9, 10, 15, 0.9) 100%); border-top: 2px solid var(--accent); box-shadow: 0 10px 30px rgba(0, 210, 255, 0.1); position: relative; }
-        .status-text { font-family: var(--font-racing); font-style: italic; font-size: 1.3rem; min-height: 2.8rem; color: var(--accent); margin-bottom: 10px; display: flex; align-items: center; justify-content: center; letter-spacing: 1px; text-shadow: 0 0 10px rgba(0, 210, 255, 0.4); }
+        #result-area { margin: 15px; padding: 30px 15px; background: linear-gradient(180deg, rgba(31, 40, 51, 0.5) 0%, rgba(9, 10, 15, 0.9) 100%); border-top: 2px solid var(--accent); box-shadow: 0 10px 30px rgba(0, 210, 255, 0.1); position: relative; overflow: hidden; }
+        .status-text { font-family: var(--font-racing); font-style: italic; font-size: 1.3rem; min-height: 2.8rem; color: var(--accent); margin-bottom: 10px; display: flex; align-items: center; justify-content: center; letter-spacing: 1px; text-shadow: 0 0 10px rgba(0, 210, 255, 0.4); position: relative; z-index: 5; }
         
-        .multiplier-display { font-family: var(--font-racing); font-size: 4.5rem; font-weight: 700; font-style: italic; color: white; margin: 10px 0; font-variant-numeric: tabular-nums; line-height: 1; }
+        .multiplier-display { font-family: var(--font-racing); font-size: 4.5rem; font-weight: 700; font-style: italic; color: white; margin: 10px 0; font-variant-numeric: tabular-nums; line-height: 1; position: relative; z-index: 5; }
         .multiplier-display.crashed { color: var(--lose); text-shadow: 3px 3px 0px #500, 0 0 20px rgba(255,63,52,0.6); }
         .multiplier-display.won { color: var(--win); text-shadow: 3px 3px 0px #055, 0 0 30px rgba(11, 232, 129, 0.8); transform: scale(1.1) skew(-5deg); transition: 0.4s all cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         
-        .coins-won { font-size: 1.1rem; color: #aaa; margin-bottom: 25px; height: 24px; font-weight: 700; text-transform: uppercase; }
+        .coins-won { font-size: 1.1rem; color: #aaa; margin-bottom: 25px; height: 24px; font-weight: 700; text-transform: uppercase; position: relative; z-index: 5; }
         .coins-won span { color: var(--gold); font-size: 1.3rem; text-shadow: 0 0 10px rgba(255, 211, 42, 0.3); }
         
         .spinner { width: 40px; height: 40px; border: 4px solid rgba(255, 211, 42, 0.2); border-top-color: var(--gold); border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 15px; box-shadow: 0 0 15px rgba(255, 211, 42, 0.2); }
         
-        /* Fluid Transitions & Effects */
+        /* Particle & Deal Effects */
+        #particle-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; }
+        .game-coin { position: absolute; top: -30px; width: 18px; height: 18px; background: radial-gradient(circle at 30% 30%, #fffbd5, var(--gold)); border-radius: 50%; box-shadow: 0 0 8px var(--gold); animation: fall linear forwards; }
+        .mega-coin { width: 24px; height: 24px; background: radial-gradient(circle at 30% 30%, #a8ff78, var(--win)); box-shadow: 0 0 15px var(--win); z-index: 2; }
+        
+        .deal-shake { animation: shake 0.6s cubic-bezier(.36,.07,.19,.97) both; }
+        .flash-red { animation: flashLoss 0.6s ease-out; }
+        .flash-gold { animation: flashWin 1s ease-out; }
+        
         .screen-enter { animation: slideInFade 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; display: block !important; }
         .screen-exit { animation: slideOutFade 0.25s ease forwards; pointer-events: none; }
-        
         .power-flash { animation: powerUp 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
         .banner-enter { animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; display: block !important; }
         
         .img-tuned { filter: drop-shadow(0 15px 15px rgba(0, 210, 255, 0.5)) drop-shadow(0 0 40px rgba(0, 210, 255, 0.3)) !important; animation: idleFloat 3s ease-in-out infinite; }
-
         .smoke-particle { position: absolute; bottom: 10%; width: 12px; height: 12px; background: rgba(80, 80, 80, 0.6); border-radius: 50%; filter: blur(5px); animation: smokeRise 2s infinite ease-in; z-index: 1; }
         .sparkle { position: absolute; top: 15%; right: 25%; width: 12px; height: 12px; background: white; clip-path: polygon(50% 0%, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0% 50%, 40% 40%); animation: twinkle 2s infinite ease-in-out; z-index: 3; }
         
         @keyframes spin { 100% { transform: rotate(360deg); } }
-        @keyframes pulse { 0% { opacity: 0.4; } 50% { opacity: 1; } 100% { opacity: 0.4; } }
-        
-        /* Screen Transitions */
         @keyframes slideInFade { 0% { opacity: 0; transform: translateY(30px); } 100% { opacity: 1; transform: translateY(0); } }
         @keyframes slideOutFade { 0% { opacity: 1; transform: translateY(0); transform: scale(1); } 100% { opacity: 0; transform: translateY(-20px) scale(0.95); } }
         @keyframes popIn { 0% { opacity: 0; transform: scale(0.8); } 100% { opacity: 1; transform: scale(1); } }
-        
         @keyframes powerUp { 0% { filter: brightness(1); transform: scale(1); } 30% { filter: brightness(2.5) contrast(1.2); transform: scale(1.05); box-shadow: 0 0 30px var(--accent); } 100% { filter: brightness(1); transform: scale(1); box-shadow: none; } }
         @keyframes idleFloat { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-4px); } }
         @keyframes smokeRise { 0% { transform: translateY(0) scale(1); opacity: 0.8; } 100% { transform: translateY(-40px) scale(3); opacity: 0; } }
         @keyframes twinkle { 0%, 100% { transform: scale(0) rotate(0deg); opacity: 0; } 50% { transform: scale(1.2) rotate(90deg); opacity: 1; } }
+        
+        /* New Animations for Wow Factor */
+        @keyframes fall { 0% { transform: translateY(-30px) rotate(0deg); opacity: 1; } 100% { transform: translateY(110vh) rotate(500deg); opacity: 0; } }
+        @keyframes shake { 10%, 90% { transform: translate3d(-3px, 0, 0); } 20%, 80% { transform: translate3d(5px, 0, 0); } 30%, 50%, 70% { transform: translate3d(-10px, 0, 0); } 40%, 60% { transform: translate3d(10px, 0, 0); } }
+        @keyframes flashLoss { 0% { box-shadow: inset 0 0 100px rgba(255,63,52,0.8); background: rgba(255,63,52,0.1); } 100% { box-shadow: 0 10px 30px rgba(0, 210, 255, 0.1); background: linear-gradient(180deg, rgba(31, 40, 51, 0.5) 0%, rgba(9, 10, 15, 0.9) 100%); } }
+        @keyframes flashWin { 0% { box-shadow: inset 0 0 150px rgba(255,211,42,0.7); background: rgba(255,211,42,0.15); } 100% { box-shadow: 0 10px 30px rgba(0, 210, 255, 0.1); background: linear-gradient(180deg, rgba(31, 40, 51, 0.5) 0%, rgba(9, 10, 15, 0.9) 100%); } }
     </style>
 </head>
 <body>
@@ -172,7 +177,6 @@
     </header>
     
     <div class="container">
-        <!-- Replaced hard display styles with game-screen classes -->
         <div id="selectionPhase" class="game-screen">
             <h2 id="phaseTitle">Select a Ride</h2>
             <div class="car-grid" id="carGrid"></div>
@@ -197,14 +201,16 @@
         </div>
         
         <div id="result-area" class="game-screen" style="border-radius: 8px;">
+            <div id="particle-container"></div>
+            
             <div class="status-text" id="statusText"></div>
             <div class="global-progress-container" id="sellProgressContainer" style="display:none; margin: 15px auto;">
                 <div class="global-progress-bar" id="sellProgressBar" style="background: var(--accent); box-shadow: 0 0 15px var(--accent);"></div>
             </div>
-            <button class="btn-cancel" id="btnSkip" onclick="skipSellAnimation()" style="display:none; margin: 15px auto; width: 100%; padding: 12px; font-family: var(--font-ui); font-weight: bold; text-transform: uppercase;">⏩ Skip Wait</button>
+            <button class="btn-cancel" id="btnSkip" onclick="skipSellAnimation()" style="display:none; margin: 15px auto; width: 100%; padding: 12px; font-family: var(--font-ui); font-weight: bold; text-transform: uppercase; position: relative; z-index: 10;">⏩ Skip Wait</button>
             <div class="multiplier-display" id="multiplierDisplay" style="display:none;">1.00x</div>
             <div class="coins-won" id="coinsWonDisplay"></div>
-            <button id="btnNextRound" onclick="startRound()" style="display:none; margin: 0 auto; width: 100%; padding: 15px; font-size: 1.2rem;">Back to Streets</button>
+            <button id="btnNextRound" onclick="startRound()" style="display:none; margin: 0 auto; width: 100%; padding: 15px; font-size: 1.2rem; position: relative; z-index: 10;">Back to Streets</button>
         </div>
     </div>
     <script>
@@ -243,33 +249,21 @@
         let isSkipping = false;
         let currentFinalMult = 0;
         let roundCount = 0; 
-        
         let currentScreen = null;
 
-        // Fluid Screen Switcher
         async function switchScreen(screenId) {
             const screens = ["selectionPhase", "actionArea", "result-area"];
-            
-            // Fade out the old screen if there is one
             if (currentScreen && currentScreen !== screenId) {
                 let hideEl = document.getElementById(currentScreen);
                 hideEl.classList.remove("screen-enter");
                 hideEl.classList.add("screen-exit");
-                // Wait for the quick exit animation
                 await new Promise(r => setTimeout(r, 200)); 
                 hideEl.style.display = "none";
                 hideEl.classList.remove("screen-exit");
             }
-            
-            // Immediately hide everything else just in case
-            screens.forEach(id => {
-                if(id !== screenId) document.getElementById(id).style.display = "none";
-            });
-
-            // Slide in the new screen
+            screens.forEach(id => { if(id !== screenId) document.getElementById(id).style.display = "none"; });
             const showEl = document.getElementById(screenId);
             showEl.style.display = "block";
-            // Reflow hack to restart animation smoothly
             void showEl.offsetWidth; 
             showEl.classList.add("screen-enter");
             currentScreen = screenId;
@@ -305,47 +299,47 @@
                 imageState = "mint";
                 effectsHtml = `<div class="sparkle"></div>`;
             } else if (condition === "Tuned Beast") {
-                imageState = "tuned";
-                imgClass = "img-tuned"; 
+                imageState = "tuned"; imgClass = "img-tuned"; 
             }
-
-            let imgSrc = getFileName(carName, imageState);
-
             return `<div style="position: relative; width: 100%; height: 100%; display: flex; justify-content: center; align-items: center;">
-                        ${effectsHtml}
-                        <img src="${imgSrc}" class="car-img ${imgClass}" alt="${carName}" onerror="this.src='https://via.placeholder.com/400x200/1e272e/00d2ff?text=Missing+Image';">
+                        ${effectsHtml} <img src="${getFileName(carName, imageState)}" class="car-img ${imgClass}" alt="${carName}" onerror="this.src='https://via.placeholder.com/400x200/1e272e/00d2ff?text=Missing+Image';">
                     </div>`;
+        }
+
+        function spawnCoins(count, intensity = "normal") {
+            const container = document.getElementById('particle-container');
+            container.innerHTML = ''; 
+            for(let i=0; i<count; i++) {
+                let coin = document.createElement('div');
+                let isMega = (intensity === "mega" && Math.random() > 0.6) || (intensity === "high" && Math.random() > 0.8);
+                coin.className = 'game-coin' + (isMega ? ' mega-coin' : '');
+                coin.style.left = Math.random() * 95 + '%';
+                coin.style.animationDuration = (Math.random() * 1.5 + 0.8) + 's';
+                coin.style.animationDelay = (Math.random() * 0.4) + 's';
+                container.appendChild(coin);
+            }
         }
 
         function preloadAssets() {
             const loadingText = document.getElementById("loadingText");
             const progressBar = document.getElementById("globalProgressBar");
-            
             let allUrls = [];
             fleet.forEach(car => { ["mint", "used", "tuned", "wrecked"].forEach(state => { allUrls.push(getFileName(car.name, state)); }); });
-
             let loadedCount = 0; let isFinished = false;
 
             function checkDone() {
                 if (isFinished) return;
                 if (loadedCount >= allUrls.length) {
-                    isFinished = true;
-                    loadingText.innerText = "ALL ASSETS LOADED";
-                    loadingText.style.color = "var(--win)";
-                    setTimeout(() => {
-                        document.getElementById("global-loader").style.opacity = "0";
-                        setTimeout(() => { document.getElementById("global-loader").style.display = "none"; startRound(); }, 400);
-                    }, 400);
+                    isFinished = true; loadingText.innerText = "ALL ASSETS LOADED"; loadingText.style.color = "var(--win)";
+                    setTimeout(() => { document.getElementById("global-loader").style.opacity = "0"; setTimeout(() => { document.getElementById("global-loader").style.display = "none"; startRound(); }, 400); }, 400);
                 }
             }
-
             allUrls.forEach(url => {
                 let img = new Image();
                 img.onload = () => { loadedCount++; progressBar.style.width = (loadedCount / allUrls.length) * 100 + "%"; checkDone(); };
                 img.onerror = () => { loadedCount++; progressBar.style.width = (loadedCount / allUrls.length) * 100 + "%"; checkDone(); }; 
                 img.src = url;
             });
-
             setTimeout(() => { if (!isFinished) { loadedCount = allUrls.length; checkDone(); } }, 8000);
         }
 
@@ -377,7 +371,6 @@
                 } else {
                     if (roll < 0.65) targetTier = "cheap"; else if (roll < 0.95) targetTier = "normal"; else targetTier = "luxury";
                 }
-
                 let validCars = fleet.filter(c => c.tier === targetTier);
                 let carTemplate = validCars[randomInt(0, validCars.length - 1)];
                 let condition = conditions[randomInt(0, 2)];
@@ -397,10 +390,12 @@
         }
 
         function startRound() {
-            roundCount++; 
-            lastRepairBanner = null; currentOffers = []; loadMoreCars(4);
+            roundCount++; lastRepairBanner = null; currentOffers = []; 
+            document.getElementById("particle-container").innerHTML = '';
             document.getElementById("repair-result-banner").style.display = "none";
             document.getElementById("repair-result-banner").classList.remove("banner-enter");
+            document.getElementById("result-area").classList.remove("deal-shake", "flash-red", "flash-gold");
+            loadMoreCars(4);
             switchScreen("selectionPhase");
         }
 
@@ -414,15 +409,10 @@
 
         function updateActionArea(isRepair = false) {
             document.getElementById("selectedCarName").innerText = activeCar.name;
-            
             let iconEl = document.getElementById("actionCarIcon");
             iconEl.innerHTML = getCarVisuals(activeCar.name, activeCar.condition);
             
-            if (isRepair) {
-                iconEl.classList.remove("power-flash");
-                void iconEl.offsetWidth; 
-                iconEl.classList.add("power-flash");
-            }
+            if (isRepair) { iconEl.classList.remove("power-flash"); void iconEl.offsetWidth; iconEl.classList.add("power-flash"); }
 
             let fixCost = activeCar.condition === "Wrecked" ? activeCar.price : (activeCar.condition === "Worn" ? activeCar.price * 0.50 : activeCar.price * 0.25);
             let canFix = !activeCar.isFixed && activeCar.condition !== "Ruined" && activeCar.condition !== "Tuned Beast";
@@ -435,34 +425,19 @@
                 bannerEl.innerText = lastRepairBanner.text;
             }
 
-            let btnFix = document.getElementById("btnFix");
-            let btnSell = document.getElementById("btnSell");
+            let btnFix = document.getElementById("btnFix"); let btnSell = document.getElementById("btnSell");
 
             if (activeCar.condition === "Ruined") {
-                btnFix.style.display = "none";
-                btnSell.innerText = "Return to Streets";
-                btnSell.onclick = startRound;
-                btnSell.style.background = "transparent";
-                btnSell.style.border = "2px solid #555";
-                btnSell.style.color = "#ccc";
-                btnSell.style.boxShadow = "none";
+                btnFix.style.display = "none"; btnSell.innerText = "Return to Streets";
+                btnSell.onclick = startRound; btnSell.style.background = "transparent";
+                btnSell.style.border = "2px solid #555"; btnSell.style.color = "#ccc"; btnSell.style.boxShadow = "none";
             } else if (canFix) {
                 html += `<div style="background: rgba(255,211,42,0.05); padding: 15px; border-radius: 4px; margin-top: 20px; border-left: 3px solid var(--gold); box-shadow: 0 0 15px rgba(255,211,42,0.1);"><p style="margin:0 0 5px 0; color: var(--gold); font-family: var(--font-racing); font-size: 1.1rem; font-style:italic; letter-spacing: 1px;">UNDERGROUND TUNING:</p><p style="margin:0; font-size: 0.9rem; color: #ccc;">Pay ${formatCurrency(fixCost)} for a performance tune. <span style="color:var(--lose); font-weight:bold;">FAILS WILL BRICK THE CAR.</span></p></div>`;
-                btnFix.style.display = "block";
-                btnFix.innerText = `Tune Up (-${formatCurrency(fixCost)})`;
-                btnFix.disabled = balance < fixCost;
-                btnSell.innerText = `Sell As Is`;
-                btnSell.onclick = startSellPhase;
-                btnSell.style.background = "linear-gradient(90deg, #05c46b, var(--win))";
-                btnSell.style.border = "none";
-                btnSell.style.color = "#000";
+                btnFix.style.display = "block"; btnFix.innerText = `Tune Up (-${formatCurrency(fixCost)})`; btnFix.disabled = balance < fixCost;
+                btnSell.innerText = `Sell As Is`; btnSell.onclick = startSellPhase; btnSell.style.background = "linear-gradient(90deg, #05c46b, var(--win))"; btnSell.style.border = "none"; btnSell.style.color = "#000";
             } else {
-                btnFix.style.display = "none";
-                btnSell.innerText = `Sell Ride`;
-                btnSell.onclick = startSellPhase;
-                btnSell.style.background = "linear-gradient(90deg, #05c46b, var(--win))";
-                btnSell.style.border = "none";
-                btnSell.style.color = "#000";
+                btnFix.style.display = "none"; btnSell.innerText = `Sell Ride`; btnSell.onclick = startSellPhase;
+                btnSell.style.background = "linear-gradient(90deg, #05c46b, var(--win))"; btnSell.style.border = "none"; btnSell.style.color = "#000";
             }
             document.getElementById("selectedCarDetails").innerHTML = html;
         }
@@ -471,9 +446,7 @@
             let fixCost = activeCar.condition === "Wrecked" ? activeCar.price : (activeCar.condition === "Worn" ? activeCar.price * 0.50 : activeCar.price * 0.25);
             if (balance < fixCost) return;
             document.getElementById("btnFix").disabled = true; document.getElementById("btnSell").disabled = true;
-            let overlay = document.getElementById("overlay-loader");
-            overlay.style.display = "flex"; overlay.style.opacity = "1";
-
+            let overlay = document.getElementById("overlay-loader"); overlay.style.display = "flex"; overlay.style.opacity = "1";
             balance -= fixCost; activeCar.invested += fixCost; activeCar.isFixed = true; 
 
             let loaderBar = document.getElementById("repairProgressBar");
@@ -497,11 +470,8 @@
                     else { activeCar.currentTierLevel = Math.min(4, bTier + 1); activeCar.condition = "Tuned Beast"; lastRepairBanner = { className: "repair-success", text: "Flawless Tune! (+1 Tier Max)" }; }
                 }
                 
-                updateBalance(); 
-                updateActionArea(true);
-                
-                overlay.style.opacity = "0";
-                setTimeout(() => { overlay.style.display = "none"; document.getElementById("btnSell").disabled = false; }, 300);
+                updateBalance(); updateActionArea(true);
+                overlay.style.opacity = "0"; setTimeout(() => { overlay.style.display = "none"; document.getElementById("btnSell").disabled = false; }, 300);
             }, 1200);
         }
 
@@ -531,13 +501,12 @@
             document.getElementById("statusText").className = "status-text pulsing"; 
             document.getElementById("sellProgressContainer").style.display = "block";
             document.getElementById("btnSkip").style.display = "block"; 
+            document.getElementById("result-area").classList.remove("deal-shake", "flash-red", "flash-gold");
             
             currentFinalMult = rollMultiplier(activeCar); isSkipping = false;
             let maxStage = currentFinalMult === 0 ? 1 : (currentFinalMult <= 2 ? 2 : (currentFinalMult <= 10 ? 3 : (currentFinalMult <= 50 ? 4 : 5)));
             
-            switchScreen("result-area").then(() => {
-                runStage(1, maxStage, currentFinalMult);
-            });
+            switchScreen("result-area").then(() => { runStage(1, maxStage, currentFinalMult); });
         }
 
         function runStage(stage, maxStage, finalMult) {
@@ -561,20 +530,27 @@
         function finishSellAnimation(finalMult) {
             document.getElementById("btnSkip").style.display = "none"; document.getElementById("sellProgressContainer").style.display = "none";
             let multEl = document.getElementById("multiplierDisplay"); multEl.style.display = "block";
+            let resArea = document.getElementById("result-area");
+
             if (finalMult === 0) {
                 document.getElementById("statusText").innerText = "Total Loss. They walked away.";
                 multEl.innerText = "0.00x"; multEl.className = "multiplier-display crashed";
                 document.getElementById("coinsWonDisplay").innerHTML = `Loss: <span style="color:var(--lose);">-${formatCurrency(activeCar.invested)}</span>`;
+                
+                resArea.classList.add("deal-shake", "flash-red");
                 document.getElementById("btnNextRound").style.display = "block";
             } else {
-                document.getElementById("statusText").innerText = "DEAL CLOSED!"; animateMultiplier(finalMult, activeCar.invested);
+                document.getElementById("statusText").innerText = "DEAL CLOSED!"; 
+                animateMultiplier(finalMult, activeCar.invested);
             }
         }
 
         function animateMultiplier(targetMult, invested) {
             let multEl = document.getElementById("multiplierDisplay");
+            let resArea = document.getElementById("result-area");
             let duration = targetMult > 50 ? 3000 : (targetMult > 10 ? 2000 : 1000);
             let frames = (duration / 1000) * 60, step = Math.max(0.01, (targetMult - 1.00) / frames), currentMult = 1.00;
+            
             function tick() {
                 currentMult += step;
                 if (currentMult >= targetMult) {
@@ -582,6 +558,17 @@
                     let winnings = Number((invested * targetMult).toFixed(2)); balance += winnings; updateBalance();
                     document.getElementById("coinsWonDisplay").innerHTML = `Banked: <span>${formatCurrency(winnings)}</span>`;
                     document.getElementById("btnNextRound").style.display = "block";
+                    
+                    // The WoW Effect Trigger
+                    if (targetMult < 3) {
+                        spawnCoins(15, "low");
+                    } else if (targetMult >= 3 && targetMult < 10) {
+                        spawnCoins(40, "high");
+                        resArea.classList.add("flash-gold");
+                    } else {
+                        spawnCoins(120, "mega");
+                        resArea.classList.add("deal-shake", "flash-gold");
+                    }
                     return;
                 }
                 multEl.innerText = currentMult.toFixed(2) + "x"; requestAnimationFrame(tick);
