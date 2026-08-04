@@ -143,7 +143,7 @@
         }
     </style>
 </head>
-    <body>
+<body>
     <div id="global-loader">
         <h1>Underground Garage</h1>
         <div id="bootCarIcon" class="car-icon-container" style="width: 200px; height: 120px; border: 2px solid var(--accent); margin-bottom: 15px; background: transparent;"></div>
@@ -191,7 +191,7 @@
             <button id="btnNextRound" onclick="startRound()" style="display:none; margin: 0 auto; width: 100%; padding: 15px; font-size: 1.2rem;">Back to Streets</button>
         </div>
     </div>
-        <script>
+    <script>
         const fleet = [
             { name: "Qenault Uwingo", tier: "cheap", basePrice: 10 },
             { name: "Jonda Divic", tier: "cheap", basePrice: 50 },
@@ -233,7 +233,7 @@
         let currentFinalMult = 0;
         let roundCount = 0; 
 
-        // Generates the image block with appropriate Lottie overlay
+        // Safely maps full car names to exact file prefixes based on GitHub structure
         function getCarVisuals(carName, condition) {
             let imageState = "mint";
             let lottieUrl = "";
@@ -255,7 +255,21 @@
                 lottieOpacity = "0.9";
             }
 
-            let fileName = `${carName.replace(/\s+/g, '_').toLowerCase()}_${imageState}.jpg`;
+            let filePrefix = "";
+            switch(carName) {
+                case "Qenault Uwingo": filePrefix = "uwingo"; break;
+                case "Jonda Divic": filePrefix = "divic"; break;
+                case "Voyota Damry": filePrefix = "damry"; break;
+                case "Jonda Bccord": filePrefix = "bccord"; break;
+                case "Nercedes H-Wagon": filePrefix = "hwagon"; break;
+                case "Mamborghini Juracan": filePrefix = "jurracan"; break;
+                // Handle GitHub case-sensitive anomalies
+                case "Pugatti Shiron": filePrefix = imageState === "mint" ? "Shiron" : "shiron"; break;
+                case "McKaren F1 Classic": filePrefix = imageState === "mint" ? "f1Classic" : "f1classic"; break;
+                default: filePrefix = "uwingo";
+            }
+
+            let fileName = `${filePrefix}_${imageState}.png`;
             let imgSrc = `cars/${fileName}`;
             let lottieHtml = lottieUrl ? `<lottie-player src="${lottieUrl}" background="transparent" speed="1" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: ${lottieOpacity}; pointer-events: none;" loop autoplay></lottie-player>` : ``;
 
@@ -281,7 +295,7 @@
             }
             requestAnimationFrame(step);
         }
-            function loadMoreCars(count) {
+        function loadMoreCars(count) {
             let grid = document.getElementById("carGrid");
             let newHTML = "";
             let allowCollector = roundCount > 3; 
@@ -341,11 +355,9 @@
             balance -= activeCar.price; updateBalance();
             document.getElementById("selectionPhase").style.display = "none";
             document.getElementById("actionArea").style.display = "block";
-            // Normal load, no transition flash
             updateActionArea(false);
         }
 
-        // Added isRepair flag to trigger animation only on state changes
         function updateActionArea(isRepair = false) {
             document.getElementById("selectedCarName").innerText = activeCar.name;
             
@@ -354,7 +366,7 @@
             
             if (isRepair) {
                 iconEl.classList.remove("power-flash");
-                void iconEl.offsetWidth; // Trigger reflow to restart animation
+                void iconEl.offsetWidth; 
                 iconEl.classList.add("power-flash");
             }
 
@@ -428,10 +440,8 @@
                 }
                 
                 updateBalance(); 
-                // Passing 'true' triggers the transition animation
                 updateActionArea(true);
                 
-                // Smoothly fade out the loader overlay
                 overlay.style.opacity = "0";
                 setTimeout(() => { 
                     overlay.style.display = "none"; 
