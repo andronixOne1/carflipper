@@ -4,8 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Car Flipping Simulator - Y2K Underground Edition</title>
-    <!-- Lottie Player for Animations -->
-    <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;700&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
     <style>
         * { box-sizing: border-box; }
@@ -46,7 +44,7 @@
         #global-loader { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: radial-gradient(circle at center, #1a1c29 0%, var(--bg) 100%); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999; transition: opacity 0.4s ease, visibility 0.4s ease; padding: 20px; }
         #global-loader h1 { color: var(--accent); font-size: 2.5rem; text-shadow: 0 0 20px rgba(0, 210, 255, 0.6); margin-bottom: 20px; }
         .global-progress-container { width: 100%; max-width: 400px; height: 14px; background: #000; border: 1px solid #333; transform: skew(-15deg); margin-top: 20px; overflow: hidden; }
-        .global-progress-bar { height: 100%; width: 0%; background: linear-gradient(90deg, var(--accent-dark), var(--accent)); box-shadow: 0 0 15px var(--accent); }
+        .global-progress-bar { height: 100%; width: 0%; background: linear-gradient(90deg, var(--accent-dark), var(--accent)); box-shadow: 0 0 15px var(--accent); transition: width 0.1s ease; }
         .loading-text { color: var(--accent); margin-top: 15px; font-family: var(--font-racing); font-size: 1.1rem; animation: pulse 1s infinite; letter-spacing: 2px; }
         
         header { width: 100%; max-width: 800px; display: flex; justify-content: space-between; align-items: center; background: rgba(9, 10, 15, 0.95); backdrop-filter: blur(10px); padding: 15px 20px; border-bottom: 2px solid var(--accent); box-shadow: 0 4px 20px rgba(0, 210, 255, 0.15); position: sticky; top: 0; z-index: 100; }
@@ -75,7 +73,7 @@
             padding: 15px 10px; 
             border-top: 1px solid rgba(255,255,255,0.1);
             border-left: 1px solid rgba(255,255,255,0.05);
-            cursor: pointer; position: relative; display: flex; flex-direction: column; align-items: center; gap: 10px; min-height: 210px; transition: 0.2s all; 
+            cursor: pointer; position: relative; display: flex; flex-direction: column; align-items: center; gap: 10px; min-height: 220px; transition: 0.2s all; 
             clip-path: polygon(0 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%);
             box-shadow: 5px 5px 15px rgba(0,0,0,0.6);
         }
@@ -86,13 +84,20 @@
         .car-card.tier-luxury:hover { box-shadow: 0 0 20px rgba(255, 211, 42, 0.4); border-color: var(--gold); }
         .car-card.tier-collector:hover { box-shadow: 0 0 25px rgba(255, 63, 52, 0.6); border-color: var(--mythic); }
 
-        .car-card h3 { color: white; font-size: 1.1rem; line-height: 1.1; min-height: 2.2rem; display: flex; align-items: center; z-index: 2; }
+        .car-card h3 { color: white; font-size: 1.1rem; line-height: 1.1; min-height: 2.2rem; display: flex; align-items: center; z-index: 2; margin-top: 5px; }
         
+        /* Removed black box/border - images now sit native on transparency */
         .car-icon-container { 
-            width: 100%; height: 90px; display: flex; align-items: center; justify-content: center; 
-            background: #000; border: 1px solid #333; margin-bottom: 5px; position: relative; overflow: hidden; border-radius: 4px;
+            width: 100%; height: 110px; display: flex; align-items: center; justify-content: center; 
+            background: transparent; border: none; margin-bottom: 5px; position: relative; 
         }
         
+        .car-img {
+            width: 90%; height: 90%; object-fit: contain; z-index: 2;
+            filter: drop-shadow(0 10px 10px rgba(0,0,0,0.9)); 
+            transition: 0.3s all;
+        }
+
         .car-info-row { display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 0.85rem; color: #888; font-weight: 700; z-index: 2; }
         .car-info-row span { color: white; }
 
@@ -112,7 +117,6 @@
         #overlay-loader { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(9, 10, 15, 0.95); backdrop-filter: blur(5px); border-radius: 8px; align-items: center; justify-content: center; flex-direction: column; z-index: 10; transition: opacity 0.3s ease; }
         #repair-result-banner { display: none; margin-top: 15px; padding: 12px; font-family: var(--font-racing); font-size: 1rem; text-transform: uppercase; letter-spacing: 1px; animation: fadeIn 0.4s ease-out; clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px); }
         
-        /* Updated Repair Colors */
         .repair-fail { background: rgba(255, 63, 52, 0.1); border-left: 4px solid var(--lose); color: var(--lose); text-shadow: 0 0 8px rgba(255,63,52,0.4); }
         .repair-shoddy { background: rgba(255, 211, 42, 0.1); border-left: 4px solid var(--gold); color: var(--gold); text-shadow: 0 0 8px rgba(255,211,42,0.4); }
         .repair-success { background: rgba(0, 210, 255, 0.1); border-left: 4px solid var(--accent); color: var(--accent); text-shadow: 0 0 8px rgba(0,210,255,0.4); font-size: 1.05rem !important; }
@@ -130,8 +134,24 @@
         
         .spinner { width: 40px; height: 40px; border: 4px solid rgba(255, 211, 42, 0.2); border-top-color: var(--gold); border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 15px; box-shadow: 0 0 15px rgba(255, 211, 42, 0.2); }
         
-        /* Transition Animation for Repair States */
+        /* CSS Native Animations (Replaces Lottie) */
         .power-flash { animation: powerUp 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+        
+        .img-tuned {
+            filter: drop-shadow(0 15px 15px rgba(0, 210, 255, 0.5)) drop-shadow(0 0 40px rgba(0, 210, 255, 0.3)) !important;
+            animation: idleFloat 3s ease-in-out infinite;
+        }
+
+        .smoke-particle {
+            position: absolute; bottom: 10%; width: 12px; height: 12px; background: rgba(80, 80, 80, 0.6);
+            border-radius: 50%; filter: blur(5px); animation: smokeRise 2s infinite ease-in; z-index: 1;
+        }
+        
+        .sparkle {
+            position: absolute; top: 15%; right: 25%; width: 12px; height: 12px; background: white;
+            clip-path: polygon(50% 0%, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0% 50%, 40% 40%);
+            animation: twinkle 2s infinite ease-in-out; z-index: 3;
+        }
         
         @keyframes spin { 100% { transform: rotate(360deg); } }
         @keyframes pulse { 0% { opacity: 0.4; } 50% { opacity: 1; } 100% { opacity: 0.4; } }
@@ -141,14 +161,17 @@
             30% { filter: brightness(2.5) contrast(1.2); transform: scale(1.05); box-shadow: 0 0 30px var(--accent); }
             100% { filter: brightness(1); transform: scale(1); box-shadow: none; }
         }
+        @keyframes idleFloat { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-4px); } }
+        @keyframes smokeRise { 0% { transform: translateY(0) scale(1); opacity: 0.8; } 100% { transform: translateY(-40px) scale(3); opacity: 0; } }
+        @keyframes twinkle { 0%, 100% { transform: scale(0) rotate(0deg); opacity: 0; } 50% { transform: scale(1.2) rotate(90deg); opacity: 1; } }
     </style>
 </head>
 <body>
     <div id="global-loader">
         <h1>Underground Garage</h1>
-        <div id="bootCarIcon" class="car-icon-container" style="width: 200px; height: 120px; border: 2px solid var(--accent); margin-bottom: 15px; background: transparent;"></div>
+        <div id="bootCarIcon" class="car-icon-container" style="width: 250px; height: 150px; margin-bottom: 15px;"></div>
         <div class="global-progress-container"><div class="global-progress-bar" id="globalProgressBar"></div></div>
-        <div class="loading-text" id="loadingText">Connecting to Street Network...</div>
+        <div class="loading-text" id="loadingText">Syncing Street Assets...</div>
     </div>
     
     <header>
@@ -169,7 +192,7 @@
                 <div class="global-progress-container" style="max-width: 250px;"><div class="global-progress-bar" style="background: var(--gold); box-shadow: 0 0 15px var(--gold);" id="repairProgressBar"></div></div>
             </div>
             
-            <div id="actionCarIcon" class="car-icon-container" style="width:100%; max-width:400px; height:200px; margin: 0 auto 15px auto; border-radius: 8px;"></div>
+            <div id="actionCarIcon" class="car-icon-container" style="width:100%; max-width:400px; height:200px; margin: 0 auto 15px auto;"></div>
             <h2 id="selectedCarName" style="margin-top:0; font-size: 1.8rem; text-shadow: 0 2px 4px rgba(0,0,0,0.8);">Car Name</h2>
             <div id="selectedCarDetails" style="font-size: 1rem; line-height: 1.5; margin-top: 10px;"></div>
             <div id="repair-result-banner"></div>
@@ -214,12 +237,7 @@
         ];
 
         const repairEvents = {
-            fail: [
-                "💥 Mechanic broke a leg mid-repair! Engine ruined.", "🤦 Mechanic dropped your engine block! Severe damage.", "🎰 Mechanic gambled your money away and damaged parts.",
-                "⚡ Mechanic wired the battery backwards and fried electronics!", "🔥 Mechanic used a blowtorch near the gas tank. Oops.", "🦝 A family of raccoons moved into the engine bay.",
-                "🛸 Alien abduction reported at the garage. Car returned as a cube.", "🔨 Mechanic sneezed while holding a sledgehammer. Totaled.", "🌊 Left the windows down during a flash flood in the shop.",
-                "🌪️ Mechanic accidentally built a tornado machine instead of an engine.", "🧀 Mechanic tried to fix the radiator with melted cheese.", "🦍 A stray silverback gorilla got loose in the garage."
-            ],
+            fail: ["💥 Mechanic broke a leg mid-repair! Engine ruined.", "🤦 Mechanic dropped your engine block! Severe damage.", "⚡ Mechanic wired the battery backwards and fried electronics!", "🔥 Mechanic used a blowtorch near the gas tank. Oops.", "🦝 A family of raccoons moved into the engine bay.", "🛸 Alien abduction reported. Car returned as a cube.", "🔨 Mechanic sneezed while holding a sledgehammer. Totaled."],
             shoddy: ["🍺 Mechanic was hungover, but duct-taped the bumper (+1 Tier).", "🌾 Mechanic used parts from an old lawnmower (+1 Tier).", "🛠️ Mechanic patched the leak with chewing gum (+1 Tier)."],
             success: ["✨ Mechanic worked overtime and restored it clean (+1 Tier)!", "🏎️ Mechanic tuned it up to factory perfection (+1 Tier)!", "🧼 Mechanic buffed out every scratch till it shined (+1 Tier)!"],
             jackpot: ["🎂 Mechanic gave you a free mystery upgrade (+2 Tiers)!", "🚀 Mechanic secretly installed a nitro boost (+2 Tiers)!", "👑 Mechanic accidentally turned your car into a street legend (+2 Tiers)!"]
@@ -233,28 +251,8 @@
         let currentFinalMult = 0;
         let roundCount = 0; 
 
-        // Safely maps full car names to exact file prefixes based on GitHub structure
-        function getCarVisuals(carName, condition) {
-            let imageState = "mint";
-            let lottieUrl = "";
-            let lottieOpacity = "0.7";
-            
-            if (condition === "Wrecked" || condition === "Ruined") {
-                imageState = "wrecked";
-                lottieUrl = "https://lottie.host/819779df-2f34-4530-86ad-c12e5ebfec98/zZ9Rfy6F7z.json";
-            } else if (condition === "Worn") {
-                imageState = "used";
-                lottieUrl = "https://lottie.host/84bb72ce-23da-4702-8613-333e68df8eb0/G0eXYnDB9o.json";
-                lottieOpacity = "0.4";
-            } else if (condition === "Clean" || condition === "Repaired") {
-                imageState = "mint";
-                lottieUrl = "https://lottie.host/703621df-6b80-4965-8b8d-294b4cf492fb/Z2n8w8T9Vv.json";
-            } else if (condition === "Tuned Beast") {
-                imageState = "tuned";
-                lottieUrl = "https://lottie.host/17eb6da1-2a6c-48c9-8d1f-846101c70e7e/A6N8W6D2W1.json";
-                lottieOpacity = "0.9";
-            }
-
+        // Resolves exact filenames
+        function getFileName(carName, imageState) {
             let filePrefix = "";
             switch(carName) {
                 case "Qenault Uwingo": filePrefix = "uwingo"; break;
@@ -263,38 +261,89 @@
                 case "Jonda Bccord": filePrefix = "bccord"; break;
                 case "Nercedes H-Wagon": filePrefix = "hwagon"; break;
                 case "Mamborghini Juracan": filePrefix = "jurracan"; break;
-                // Handle GitHub case-sensitive anomalies
                 case "Pugatti Shiron": filePrefix = imageState === "mint" ? "Shiron" : "shiron"; break;
                 case "McKaren F1 Classic": filePrefix = imageState === "mint" ? "f1Classic" : "f1classic"; break;
                 default: filePrefix = "uwingo";
             }
+            return `cars/${filePrefix}_${imageState}.png`;
+        }
 
-            let fileName = `${filePrefix}_${imageState}.png`;
-            let imgSrc = `cars/${fileName}`;
-            let lottieHtml = lottieUrl ? `<lottie-player src="${lottieUrl}" background="transparent" speed="1" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: ${lottieOpacity}; pointer-events: none;" loop autoplay></lottie-player>` : ``;
+        // Returns pure CSS HTML element instead of Lottie
+        function getCarVisuals(carName, condition) {
+            let imageState = "mint";
+            let effectsHtml = "";
+            let imgClass = "";
+            
+            if (condition === "Wrecked" || condition === "Ruined") {
+                imageState = "wrecked";
+                effectsHtml = `<div class="smoke-particle" style="left:35%; animation-delay: 0s;"></div>
+                               <div class="smoke-particle" style="left:50%; animation-delay: 0.8s; transform: scale(1.2);"></div>
+                               <div class="smoke-particle" style="left:65%; animation-delay: 1.6s;"></div>`;
+            } else if (condition === "Worn") {
+                imageState = "used";
+            } else if (condition === "Clean" || condition === "Repaired") {
+                imageState = "mint";
+                effectsHtml = `<div class="sparkle"></div>`;
+            } else if (condition === "Tuned Beast") {
+                imageState = "tuned";
+                imgClass = "img-tuned"; // Handled in CSS!
+            }
 
-            return `<div style="position: relative; width: 100%; height: 100%;">
-                        <img src="${imgSrc}" alt="${carName}" style="width: 100%; height: 100%; object-fit: cover; display: block;" onerror="this.src='https://via.placeholder.com/400x200/1e272e/00d2ff?text=Missing+Image';">
-                        ${lottieHtml}
+            let imgSrc = getFileName(carName, imageState);
+
+            return `<div style="position: relative; width: 100%; height: 100%; display: flex; justify-content: center; align-items: center;">
+                        ${effectsHtml}
+                        <img src="${imgSrc}" class="car-img ${imgClass}" alt="${carName}" onerror="this.src='https://via.placeholder.com/400x200/1e272e/00d2ff?text=Missing+Image';">
                     </div>`;
+        }
+
+        // REAL PRELOADER TRACKING NETWORK REQUESTS
+        function preloadAssets() {
+            const loadingText = document.getElementById("loadingText");
+            const progressBar = document.getElementById("globalProgressBar");
+            
+            let allUrls = [];
+            fleet.forEach(car => {
+                ["mint", "used", "tuned", "wrecked"].forEach(state => {
+                    allUrls.push(getFileName(car.name, state));
+                });
+            });
+
+            let loadedCount = 0;
+            let isFinished = false;
+
+            function checkDone() {
+                if (isFinished) return;
+                if (loadedCount >= allUrls.length) {
+                    isFinished = true;
+                    loadingText.innerText = "ALL ASSETS LOADED";
+                    loadingText.style.color = "var(--win)";
+                    loadingText.style.animation = "none";
+                    setTimeout(() => {
+                        document.getElementById("global-loader").style.opacity = "0";
+                        setTimeout(() => { 
+                            document.getElementById("global-loader").style.display = "none"; 
+                            startRound(); 
+                        }, 400);
+                    }, 500);
+                }
+            }
+
+            allUrls.forEach(url => {
+                let img = new Image();
+                img.onload = () => { loadedCount++; progressBar.style.width = (loadedCount / allUrls.length) * 100 + "%"; checkDone(); };
+                img.onerror = () => { loadedCount++; progressBar.style.width = (loadedCount / allUrls.length) * 100 + "%"; checkDone(); }; // Count errors so UI doesn't hang
+                img.src = url;
+            });
+
+            // Failsafe timer (max 8 seconds) in case of severely bad connection
+            setTimeout(() => { if (!isFinished) { loadedCount = allUrls.length; checkDone(); } }, 8000);
         }
 
         function updateBalance() { document.getElementById("balanceDisplay").innerText = balance.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}); }
         function topUp() { balance += 2500; updateBalance(); }
         function randomInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
         function formatCurrency(num) { return "$" + num.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}); }
-
-        function animateProgressBar(barElement, durationMs, onComplete) {
-            let start = null; barElement.style.width = "0%";
-            function step(timestamp) {
-                if (!start) start = timestamp;
-                let progress = timestamp - start;
-                barElement.style.width = Math.min(100, (progress / durationMs) * 100) + "%";
-                if (progress < durationMs) requestAnimationFrame(step);
-                else if (onComplete) onComplete();
-            }
-            requestAnimationFrame(step);
-        }
         function loadMoreCars(count) {
             let grid = document.getElementById("carGrid");
             let newHTML = "";
@@ -324,21 +373,6 @@
                 newHTML += `<div class="car-card tier-${car.tier}" onclick="selectCar(${currentOffers.length - 1})"><div class="tier-badge badge-${car.tier}">${car.tier}</div><h3>${car.name}</h3><div class="car-icon-container">${getCarVisuals(car.name, car.condition)}</div><div class="car-info-row"><div>Cond: <span style="color:white;">${car.condition}</span></div><div>Price: <span style="color:var(--gold)">${formatCurrency(car.price)}</span></div></div></div>`;
             }
             grid.innerHTML = newHTML; 
-        }
-
-        function simulateGameLoad() {
-            document.getElementById("bootCarIcon").innerHTML = `<lottie-player src="https://lottie.host/17eb6da1-2a6c-48c9-8d1f-846101c70e7e/A6N8W6D2W1.json" background="transparent" speed="1" style="width: 100%; height: 100%;" loop autoplay></lottie-player>`;
-            const loadingText = document.getElementById("loadingText");
-            
-            animateProgressBar(document.getElementById("globalProgressBar"), 1500, () => {
-                loadingText.innerText = "ACCESS GRANTED";
-                loadingText.style.color = "var(--win)";
-                loadingText.style.animation = "none";
-                setTimeout(() => {
-                    document.getElementById("global-loader").style.opacity = "0";
-                    setTimeout(() => { document.getElementById("global-loader").style.display = "none"; startRound(); }, 400);
-                }, 400);
-            });
         }
 
         function startRound() {
@@ -417,12 +451,16 @@
             if (balance < fixCost) return;
             document.getElementById("btnFix").disabled = true; document.getElementById("btnSell").disabled = true;
             let overlay = document.getElementById("overlay-loader");
-            overlay.style.display = "flex";
-            overlay.style.opacity = "1";
+            overlay.style.display = "flex"; overlay.style.opacity = "1";
 
             balance -= fixCost; activeCar.invested += fixCost; activeCar.isFixed = true; 
 
-            animateProgressBar(document.getElementById("repairProgressBar"), 1200, () => {
+            // Hardcode 1.2s timeout so the CSS animation syncs up nicely
+            let loaderBar = document.getElementById("repairProgressBar");
+            loaderBar.style.width = "0%";
+            setTimeout(() => { loaderBar.style.width = "100%"; }, 50);
+
+            setTimeout(() => {
                 let roll = Math.random(); let bTier = activeCar.baseTierLevel;
                 let failMsgs = repairEvents.fail; let randomFailMsg = failMsgs[Math.floor(Math.random() * failMsgs.length)];
 
@@ -443,11 +481,8 @@
                 updateActionArea(true);
                 
                 overlay.style.opacity = "0";
-                setTimeout(() => { 
-                    overlay.style.display = "none"; 
-                    document.getElementById("btnSell").disabled = false;
-                }, 300);
-            });
+                setTimeout(() => { overlay.style.display = "none"; document.getElementById("btnSell").disabled = false; }, 300);
+            }, 1200);
         }
 
         function rollMultiplier(car) {
@@ -485,11 +520,16 @@
             if (isSkipping) return;
             let msgs = ["Snooping the underground market...", "Rival crew showed interest...", "Negotiating pink slips...", "They love the tune, pushing price up!", "MYTHIC JACKPOT! STREET LEGEND!"];
             document.getElementById("statusText").innerText = msgs[stage - 1];
-            animateProgressBar(document.getElementById("sellProgressBar"), 1000, () => {
+            
+            let bar = document.getElementById("sellProgressBar");
+            bar.style.transition = "none"; bar.style.width = "0%";
+            setTimeout(() => { bar.style.transition = "width 1s linear"; bar.style.width = "100%"; }, 20);
+
+            setTimeout(() => {
                 if (isSkipping) return;
                 if (stage < maxStage) runStage(stage + 1, maxStage, finalMult);
                 else finishSellAnimation(finalMult);
-            });
+            }, 1000);
         }
 
         function skipSellAnimation() { if (isSkipping) return; isSkipping = true; finishSellAnimation(currentFinalMult); }
@@ -525,7 +565,10 @@
             requestAnimationFrame(tick);
         }
         
-        window.onload = simulateGameLoad;
+        window.onload = () => {
+            document.getElementById("bootCarIcon").innerHTML = getCarVisuals("Mamborghini Juracan", "Tuned Beast");
+            preloadAssets();
+        };
     </script>
 </body>
 </html>
