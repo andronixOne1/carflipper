@@ -389,9 +389,53 @@
                 container.appendChild(coin);
             }
         }
+
+        function checkWelcomeScreen() {
+            let hideWelcome = false;
+            try { hideWelcome = localStorage.getItem('hideFlipTunerWelcome') === 'true'; } 
+            catch(e) { console.warn("Storage access restricted. Skipping welcome cache."); }
+            
+            if (hideWelcome) { startRound(); } else { switchScreen("welcomeScreen"); }
+        }
+
+        function startGameFromWelcome() {
+            if (document.getElementById('dontShowAgain').checked) {
+                try { localStorage.setItem('hideFlipTunerWelcome', 'true'); } 
+                catch(e) { console.warn("Storage access restricted. Cannot save preference."); }
+            }
+            startRound();
+        }
+
+        function preloadAssets() {
+            const loadingText = document.getElementById("loadingText");
+            const progressBar = document.getElementById("globalProgressBar");
+            let allUrls = [];
+            fleet.forEach(car => { ["mint", "used", "tuned", "wrecked"].forEach(state => { allUrls.push(getFileName(car.name, state)); }); });
+            let loadedCount = 0; let isFinished = false;
+
+            function checkDone() {
+                if (isFinished) return;
+                if (loadedCount >= allUrls.length) {
+                    isFinished = true; loadingText.innerText = "ALL ASSETS LOADED"; loadingText.style.color = "var(--win)";
+                    setTimeout(() => { document.getElementById("global-loader").style.opacity = "0"; setTimeout(() => { document.getElementById("global-loader").style.display = "none"; checkWelcomeScreen(); }, 400); }, 400);
+                }
+            }
+            allUrls.forEach(url => {
+                let img = new Image();
+                img.onload = () => { loadedCount++; progressBar.style.width = (loadedCount / allUrls.length) * 100 + "%"; checkDone(); };
+                img.onerror = () => { loadedCount++; progressBar.style.width = (loadedCount / allUrls.length) * 100 + "%"; checkDone(); }; 
+                img.src = url;
+            });
+            setTimeout(() => { if (!isFinished) { loadedCount = allUrls.length; checkDone(); } }, 8000);
+        }
+
+        function updateBalance() { document.getElementById("balanceDisplay").innerText = balance.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}); }
+        function topUp() { balance += 2500; updateBalance(); }
+        function randomInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+        function formatCurrency(num) { return "$" + num.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}); }
+
         function loadMoreCars(count) {
-            let grid = document.getElementById("carGrid");
-            let newHTML = ""; let allowCollector = roundCount > 3; 
+            let grid = document.getElementById("carGrid"); let newHTML = ""; let allowCollector = roundCount > 3; 
             for (let i = 0; i < count; i++) {
                 let roll = Math.random(); let targetTier = "cheap";
                 if (allowCollector) {
@@ -481,7 +525,6 @@
                 updateBalance(); updateActionArea(true); overlay.style.opacity = "0"; setTimeout(() => { overlay.style.display = "none"; document.getElementById("btnSell").disabled = false; }, 300);
             }, 1200);
         }
-
         function rollMultiplier(car) {
             if (car.condition === "Ruined") return 0; 
             let pTier = potentialTiers[car.currentTierLevel];
@@ -499,6 +542,7 @@
             }
             return Number(finalMult.toFixed(2));
         }
+
         function startSellPhase() {
             let multEl = document.getElementById("multiplierDisplay");
             let nextBtn = document.getElementById("btnNextRound");
