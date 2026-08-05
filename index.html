@@ -19,6 +19,7 @@
             --gold: #ffd32a; 
             --mythic: #ff3f34;
             --cheap: #a4b0be;
+            --purple: #e056fd;
             --font-racing: 'Oswald', sans-serif;
             --font-ui: 'Roboto', sans-serif;
         }
@@ -121,24 +122,33 @@
         .repair-success { background: rgba(0, 210, 255, 0.1); border-left: 4px solid var(--accent); color: var(--accent); text-shadow: 0 0 8px rgba(0,210,255,0.4); font-size: 1.05rem !important; }
         .repair-jackpot { background: rgba(11, 232, 129, 0.15); border-left: 4px solid var(--win); color: var(--win); text-shadow: 0 0 10px rgba(11,232,129,0.7); font-size: 1.15rem !important; }
         
+        /* Anticipation Selling Area */
         #result-area { width: 100%; max-width: 600px; display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 15px auto; padding: 40px 15px; min-height: 320px; background: linear-gradient(180deg, rgba(31, 40, 51, 0.5) 0%, rgba(9, 10, 15, 0.9) 100%); border-top: 2px solid var(--accent); box-shadow: 0 10px 30px rgba(0, 210, 255, 0.1); position: relative; overflow: hidden; transition: all 0.5s ease; border-radius: 8px; }
         .anticipation-pulse { animation: anticipatePulse 1.2s infinite alternate; }
         
-        .status-text { font-family: var(--font-racing); font-style: italic; font-size: 1.4rem; min-height: 3rem; color: var(--accent); margin-bottom: 15px; display: flex; align-items: center; justify-content: center; letter-spacing: 1px; text-shadow: 0 0 10px rgba(0, 210, 255, 0.4); position: relative; z-index: 5; text-transform: uppercase; text-align: center; }
+        .status-text { font-family: var(--font-racing); font-style: italic; font-size: 1.4rem; min-height: 3rem; color: var(--accent); margin-bottom: 15px; display: flex; align-items: center; justify-content: center; letter-spacing: 1px; text-shadow: 0 0 10px rgba(0, 210, 255, 0.4); position: relative; z-index: 5; text-transform: uppercase; text-align: center; transition: opacity 0.3s ease; }
         .status-text.selling { font-size: 1.6rem; animation: textPulse 1s infinite alternate; }
         
-        .multiplier-display { font-family: var(--font-racing); font-size: 4.5rem; font-weight: 700; font-style: italic; color: white; margin: 15px 0; font-variant-numeric: tabular-nums; line-height: 1; position: relative; z-index: 5; transition: font-size 0.2s ease-out, transform 0.2s ease-out; }
-        .multiplier-display.crashed { color: var(--lose); text-shadow: 3px 3px 0px #500, 0 0 20px rgba(255,63,52,0.6); }
-        .multiplier-display.won { color: var(--win); text-shadow: 3px 3px 0px #055, 0 0 30px rgba(11, 232, 129, 0.8); transform: scale(1.1) skew(-5deg); transition: 0.4s all cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        /* Dynamic Multiplier Colors & Styling */
+        .multiplier-display { font-family: var(--font-racing); font-size: 4.5rem; font-weight: 700; font-style: italic; margin: 15px 0; font-variant-numeric: tabular-nums; line-height: 1; position: relative; z-index: 5; transition: opacity 0.4s ease, transform 0.4s ease; }
+        .mult-white { color: #ffffff; text-shadow: 3px 3px 0px #222, 0 0 30px rgba(255,255,255,0.7); }
+        .mult-green { color: var(--win); text-shadow: 3px 3px 0px #055, 0 0 30px rgba(11,232,129,0.8); }
+        .mult-blue { color: var(--accent); text-shadow: 3px 3px 0px #005, 0 0 30px rgba(0,210,255,0.8); }
+        .mult-purple { color: var(--purple); text-shadow: 3px 3px 0px #305, 0 0 30px rgba(224,86,253,0.8); }
         
+        .multiplier-display.crashed { color: var(--lose); text-shadow: 3px 3px 0px #500, 0 0 20px rgba(255,63,52,0.6); }
+        .multiplier-display.won { transform: scale(1.1) skew(-5deg); transition: 0.4s all cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         .flash-text { text-shadow: 0 0 30px #fff, 0 0 60px var(--accent) !important; transform: scale(1.15) !important; color: #fff !important; }
 
-        .coins-won { font-size: 1.2rem; color: #aaa; margin-bottom: 25px; height: 24px; font-weight: 700; text-transform: uppercase; position: relative; z-index: 5; }
+        .coins-won { font-size: 1.2rem; color: #aaa; margin-bottom: 25px; height: 24px; font-weight: 700; text-transform: uppercase; position: relative; z-index: 5; transition: opacity 0.4s ease; }
         .coins-won span { color: var(--gold); font-size: 1.5rem; text-shadow: 0 0 10px rgba(255, 211, 42, 0.3); }
         
         .spinner { width: 50px; height: 50px; border: 4px solid rgba(255, 211, 42, 0.2); border-top-color: var(--gold); border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 15px; box-shadow: 0 0 15px rgba(255, 211, 42, 0.2); }
         
-        /* Particle System - New Explosive Fountain Engine */
+        /* Utility Fade Classes */
+        .fade-out { opacity: 0 !important; transition: opacity 0.3s ease !important; pointer-events: none; }
+        .fade-in { opacity: 1 !important; transition: opacity 0.4s ease !important; }
+
         #particle-container { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 9999; }
         .game-coin { position: absolute; bottom: -5vh; left: 50%; width: 22px; height: 22px; background: radial-gradient(circle at 30% 30%, #fffbd5, var(--gold)); border-radius: 50%; box-shadow: 0 0 10px var(--gold); animation: fountain linear forwards; }
         .mega-coin { width: 32px; height: 32px; background: radial-gradient(circle at 30% 30%, #a8ff78, var(--win)); box-shadow: 0 0 20px var(--win); z-index: 2; }
@@ -166,14 +176,11 @@
         @keyframes idleFloat { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-4px); } }
         @keyframes smokeRise { 0% { transform: translateY(0) scale(1); opacity: 0.8; } 100% { transform: translateY(-40px) scale(3); opacity: 0; } }
         @keyframes twinkle { 0%, 100% { transform: scale(0) rotate(0deg); opacity: 0; } 50% { transform: scale(1.2) rotate(90deg); opacity: 1; } }
-        
-        /* New Fountain Animation */
         @keyframes fountain {
             0% { transform: translate(0, 0) scale(0.5) rotate(0deg); opacity: 1; animation-timing-function: cubic-bezier(0.2, 0.8, 0.4, 1); }
             40% { transform: translate(calc(var(--tx) * 0.4), var(--th)) scale(1.2) rotate(360deg); opacity: 1; animation-timing-function: cubic-bezier(0.6, 0, 0.8, 0.2); }
             100% { transform: translate(var(--tx), 100vh) scale(1) rotate(1080deg); opacity: 0; }
         }
-
         @keyframes shake { 10%, 90% { transform: translate3d(-3px, 0, 0); } 20%, 80% { transform: translate3d(5px, 0, 0); } 30%, 50%, 70% { transform: translate3d(-10px, 0, 0); } 40%, 60% { transform: translate3d(10px, 0, 0); } }
         @keyframes flashLoss { 0% { box-shadow: inset 0 0 100px rgba(255,63,52,0.8); background: rgba(255,63,52,0.1); } 100% { box-shadow: 0 10px 30px rgba(0, 210, 255, 0.1); background: linear-gradient(180deg, rgba(31, 40, 51, 0.5) 0%, rgba(9, 10, 15, 0.9) 100%); } }
         @keyframes flashWin { 0% { box-shadow: inset 0 0 150px rgba(255,211,42,0.7); background: rgba(255,211,42,0.15); } 100% { box-shadow: 0 10px 30px rgba(0, 210, 255, 0.1); background: linear-gradient(180deg, rgba(31, 40, 51, 0.5) 0%, rgba(9, 10, 15, 0.9) 100%); } }
@@ -198,7 +205,6 @@
     </header>
     
     <div class="container">
-        
         <div id="welcomeScreen" class="game-screen" style="flex-direction: column; align-items: center; justify-content: center;">
             <div style="background: linear-gradient(145deg, var(--panel), #0a0b10); border: 1px solid var(--panel-border); padding: 35px 25px; border-radius: 8px; max-width: 500px; width: 100%; box-shadow: 0 10px 40px rgba(0,0,0,0.8);">
                 <h2 style="color: white; margin-bottom: 30px; text-align: center; font-size: 2rem;">HOW TO PLAY</h2>
@@ -244,14 +250,15 @@
         
         <div id="result-area" class="game-screen">
             <div class="status-text" id="statusText"></div>
-            <div class="global-progress-container" id="sellProgressContainer" style="display:none; margin: 20px auto; transform: none; width: 80%; max-width: 300px; height: 16px;">
+            
+            <div class="global-progress-container" id="sellProgressContainer" style="margin: 20px auto; transform: none; width: 80%; max-width: 300px; height: 16px; transition: opacity 0.3s ease;">
                 <div class="global-progress-bar" id="sellProgressBar" style="background: var(--accent); box-shadow: 0 0 15px var(--accent);"></div>
             </div>
-            <button class="btn-skip" id="btnSkip" onclick="skipSellAnimation()" style="display:none; margin: 25px auto 10px auto; width: 100%; max-width: 300px; padding: 14px; z-index: 10;">⏩ FAST FORWARD</button>
+            <button class="btn-skip" id="btnSkip" onclick="skipSellAnimation()" style="margin: 25px auto 10px auto; width: 100%; max-width: 300px; padding: 14px; z-index: 10; transition: opacity 0.3s ease;">⏩ FAST FORWARD</button>
             
-            <div class="multiplier-display" id="multiplierDisplay" style="display:none;">1.00x</div>
-            <div class="coins-won" id="coinsWonDisplay"></div>
-            <button id="btnNextRound" onclick="startRound()" style="display:none; margin: 15px auto 0 auto; width: 100%; max-width: 350px; padding: 16px; font-size: 1.2rem; z-index: 10;">Back to Store</button>
+            <div class="multiplier-display mult-white" id="multiplierDisplay" style="display:none; opacity: 0;">1.00x</div>
+            <div class="coins-won" id="coinsWonDisplay" style="opacity: 0;"></div>
+            <button id="btnNextRound" onclick="startRound()" style="display:none; margin: 15px auto 0 auto; width: 100%; max-width: 350px; padding: 16px; font-size: 1.2rem; z-index: 10; opacity: 0; transition: opacity 0.4s ease;">Back to Store</button>
         </div>
     </div>
     <script>
@@ -294,6 +301,13 @@
         let multBaseSize = 4.5;
         let multThresholds = [2, 3, 4, 5, 10, 50, 100];
         let multTIndex = 0;
+
+        function getMultClass(val) {
+            if (val >= 10) return "mult-purple";
+            if (val >= 5) return "mult-blue";
+            if (val >= 2) return "mult-green";
+            return "mult-white";
+        }
 
         function scheduleWiggle() {
             setTimeout(() => {
@@ -359,7 +373,6 @@
                     </div>`;
         }
 
-        // Updated Spawn Coins logic for Exploding Fountain Effect
         function spawnCoins(count, intensity = "normal") {
             const container = document.getElementById('particle-container');
             container.innerHTML = ''; 
@@ -367,63 +380,15 @@
                 let coin = document.createElement('div');
                 let isMega = (intensity === "mega" && Math.random() > 0.6) || (intensity === "high" && Math.random() > 0.8);
                 coin.className = 'game-coin' + (isMega ? ' mega-coin' : '');
-                
                 let tx = (Math.random() - 0.5) * 150 + 'vw'; 
                 let th = -(Math.random() * 60 + 40) + 'vh';  
                 let dur = (Math.random() * 1.5 + 1.2) + 's'; 
                 let delay = (Math.random() * 0.2) + 's';     
-                
-                coin.style.setProperty('--tx', tx);
-                coin.style.setProperty('--th', th);
-                coin.style.animationDuration = dur;
-                coin.style.animationDelay = delay;
-                
+                coin.style.setProperty('--tx', tx); coin.style.setProperty('--th', th);
+                coin.style.animationDuration = dur; coin.style.animationDelay = delay;
                 container.appendChild(coin);
             }
         }
-
-        function checkWelcomeScreen() {
-            if (localStorage.getItem('hideFlipTunerWelcome') === 'true') {
-                startRound();
-            } else {
-                switchScreen("welcomeScreen");
-            }
-        }
-
-        function startGameFromWelcome() {
-            if (document.getElementById('dontShowAgain').checked) {
-                localStorage.setItem('hideFlipTunerWelcome', 'true');
-            }
-            startRound();
-        }
-
-        function preloadAssets() {
-            const loadingText = document.getElementById("loadingText");
-            const progressBar = document.getElementById("globalProgressBar");
-            let allUrls = [];
-            fleet.forEach(car => { ["mint", "used", "tuned", "wrecked"].forEach(state => { allUrls.push(getFileName(car.name, state)); }); });
-            let loadedCount = 0; let isFinished = false;
-
-            function checkDone() {
-                if (isFinished) return;
-                if (loadedCount >= allUrls.length) {
-                    isFinished = true; loadingText.innerText = "ALL ASSETS LOADED"; loadingText.style.color = "var(--win)";
-                    setTimeout(() => { document.getElementById("global-loader").style.opacity = "0"; setTimeout(() => { document.getElementById("global-loader").style.display = "none"; checkWelcomeScreen(); }, 400); }, 400);
-                }
-            }
-            allUrls.forEach(url => {
-                let img = new Image();
-                img.onload = () => { loadedCount++; progressBar.style.width = (loadedCount / allUrls.length) * 100 + "%"; checkDone(); };
-                img.onerror = () => { loadedCount++; progressBar.style.width = (loadedCount / allUrls.length) * 100 + "%"; checkDone(); }; 
-                img.src = url;
-            });
-            setTimeout(() => { if (!isFinished) { loadedCount = allUrls.length; checkDone(); } }, 8000);
-        }
-
-        function updateBalance() { document.getElementById("balanceDisplay").innerText = balance.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}); }
-        function topUp() { balance += 2500; updateBalance(); }
-        function randomInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
-        function formatCurrency(num) { return "$" + num.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}); }
         function loadMoreCars(count) {
             let grid = document.getElementById("carGrid");
             let newHTML = ""; let allowCollector = roundCount > 3; 
@@ -438,9 +403,7 @@
                 let condition = conditions[randomInt(0, 2)];
                 let baseTierLevel = targetTier === "cheap" ? 0 : (targetTier === "normal" ? 1 : (targetTier === "luxury" ? 2 : 3));
                 let finalTier = condition === "Wrecked" ? Math.max(0, baseTierLevel - 1) : (condition === "Clean" ? Math.min(4, baseTierLevel + 1) : baseTierLevel);
-                let priceMod = condition === "Wrecked" ? 0.6 : (condition === "Clean" ? 1.4 : 1.0);
-                let finalPrice = carTemplate.basePrice * priceMod;
-
+                let priceMod = condition === "Wrecked" ? 0.6 : (condition === "Clean" ? 1.4 : 1.0); let finalPrice = carTemplate.basePrice * priceMod;
                 let car = { ...carTemplate, price: finalPrice, condition: condition, originalCondition: condition, baseTierLevel: baseTierLevel, currentTierLevel: finalTier, invested: finalPrice, isFixed: false };
                 currentOffers.push(car);
                 
@@ -450,36 +413,28 @@
         }
 
         function startRound() {
-            roundCount++; lastRepairBanner = null; currentOffers = []; 
-            document.getElementById("particle-container").innerHTML = '';
-            document.getElementById("repair-result-banner").style.display = "none";
-            document.getElementById("repair-result-banner").classList.remove("banner-enter");
+            roundCount++; lastRepairBanner = null; currentOffers = []; document.getElementById("particle-container").innerHTML = '';
+            document.getElementById("repair-result-banner").style.display = "none"; document.getElementById("repair-result-banner").classList.remove("banner-enter");
             document.getElementById("result-area").classList.remove("deal-shake", "flash-red", "flash-gold", "anticipation-pulse");
-            loadMoreCars(4);
-            switchScreen("selectionPhase");
+            loadMoreCars(4); switchScreen("selectionPhase");
         }
 
         function selectCar(index) {
             activeCar = currentOffers[index];
             if (balance < activeCar.price) return alert("Insufficient funds in your bank.");
-            balance -= activeCar.price; updateBalance();
-            updateActionArea(false); switchScreen("actionArea");
+            balance -= activeCar.price; updateBalance(); updateActionArea(false); switchScreen("actionArea");
         }
 
         function updateActionArea(isRepair = false) {
             document.getElementById("selectedCarName").innerText = activeCar.name;
             let iconEl = document.getElementById("actionCarIcon"); iconEl.innerHTML = getCarVisuals(activeCar.name, activeCar.condition);
-            
             if (isRepair) { iconEl.classList.remove("power-flash"); void iconEl.offsetWidth; iconEl.classList.add("power-flash"); }
 
             let fixCost = activeCar.condition === "Wrecked" ? activeCar.price : (activeCar.condition === "Worn" ? activeCar.price * 0.50 : activeCar.price * 0.25);
             let canFix = !activeCar.isFixed && activeCar.condition !== "Ruined" && activeCar.condition !== "Tuned Beast";
             let html = `<div class="car-info-row" style="margin-bottom: 10px; font-size: 1.05rem; color: #fff;"><div>Total Invested: <span style="color:var(--gold);">${formatCurrency(activeCar.invested)}</span></div><div style="margin-top:5px;">Condition: <span style="color:var(--accent);">${activeCar.condition}</span></div></div>`;
 
-            if (lastRepairBanner) {
-                let bannerEl = document.getElementById("repair-result-banner");
-                bannerEl.className = `banner-enter ${lastRepairBanner.className}`; bannerEl.innerText = lastRepairBanner.text;
-            }
+            if (lastRepairBanner) { let bannerEl = document.getElementById("repair-result-banner"); bannerEl.className = `banner-enter ${lastRepairBanner.className}`; bannerEl.innerText = lastRepairBanner.text; }
 
             let btnFix = document.getElementById("btnFix"); let btnSell = document.getElementById("btnSell");
 
@@ -509,8 +464,7 @@
             setTimeout(() => { loaderBar.style.transition = "width 1.2s linear"; loaderBar.style.width = "100%"; }, 50);
 
             setTimeout(() => {
-                let roll = Math.random(); let bTier = activeCar.baseTierLevel;
-                let failMsgs = repairEvents.fail; let randomFailMsg = failMsgs[Math.floor(Math.random() * failMsgs.length)];
+                let roll = Math.random(); let bTier = activeCar.baseTierLevel; let failMsgs = repairEvents.fail; let randomFailMsg = failMsgs[Math.floor(Math.random() * failMsgs.length)];
 
                 if (activeCar.condition === "Wrecked") {
                     if (roll <= 0.35) { activeCar.condition = "Ruined"; lastRepairBanner = { className: "repair-fail", text: randomFailMsg }; }
@@ -524,9 +478,7 @@
                     if (roll <= 0.15) { activeCar.condition = "Ruined"; lastRepairBanner = { className: "repair-fail", text: randomFailMsg }; }
                     else { activeCar.currentTierLevel = Math.min(4, bTier + 1); activeCar.condition = "Tuned Beast"; lastRepairBanner = { className: "repair-success", text: "Flawless Tune! (+1 Tier Max)" }; }
                 }
-                
-                updateBalance(); updateActionArea(true);
-                overlay.style.opacity = "0"; setTimeout(() => { overlay.style.display = "none"; document.getElementById("btnSell").disabled = false; }, 300);
+                updateBalance(); updateActionArea(true); overlay.style.opacity = "0"; setTimeout(() => { overlay.style.display = "none"; document.getElementById("btnSell").disabled = false; }, 300);
             }, 1200);
         }
 
@@ -534,14 +486,12 @@
             if (car.condition === "Ruined") return 0; 
             let pTier = potentialTiers[car.currentTierLevel];
             if (Math.random() > pTier.winChance) return 0; 
-            
             let multRoll = Math.random() * 100, cumulative = 0; let finalMult = 0;
             for (let i = 0; i < pTier.pool.length; i++) {
                 cumulative += pTier.pool[i].c;
                 if (multRoll <= cumulative) { finalMult = (Math.random() * (pTier.pool[i].max - pTier.pool[i].min) + pTier.pool[i].min); break; }
             }
             if (finalMult === 0) finalMult = (Math.random() * (pTier.pool[pTier.pool.length - 1].max - pTier.pool[pTier.pool.length - 1].min) + pTier.pool[pTier.pool.length - 1].min);
-
             if (car.isFixed) {
                 if (car.originalCondition === "Wrecked") finalMult *= 1.55;
                 if (car.originalCondition === "Worn") finalMult *= 1.26;
@@ -549,24 +499,29 @@
             }
             return Number(finalMult.toFixed(2));
         }
-
         function startSellPhase() {
-            document.getElementById("multiplierDisplay").style.display = "none"; document.getElementById("coinsWonDisplay").innerHTML = '';
-            document.getElementById("btnNextRound").style.display = "none";
-            document.getElementById("btnSkip").style.display = "block"; 
-            
-            let statusText = document.getElementById("statusText");
-            statusText.className = "status-text selling"; 
-            
+            let multEl = document.getElementById("multiplierDisplay");
+            let nextBtn = document.getElementById("btnNextRound");
+            let skipBtn = document.getElementById("btnSkip");
             let progressCont = document.getElementById("sellProgressContainer");
+            let coinsWon = document.getElementById("coinsWonDisplay");
+            let statusText = document.getElementById("statusText");
+
+            multEl.style.display = "none"; multEl.style.opacity = "0";
+            multEl.className = "multiplier-display mult-white";
+            nextBtn.style.display = "none"; nextBtn.style.opacity = "0";
+            coinsWon.style.opacity = "0"; coinsWon.innerHTML = '';
+            
+            skipBtn.style.display = "block"; skipBtn.style.opacity = "1";
             progressCont.style.display = "block"; progressCont.style.opacity = "1";
+            
+            statusText.className = "status-text selling"; statusText.style.opacity = "1";
             
             document.getElementById("result-area").classList.add("anticipation-pulse");
             
             currentFinalMult = rollMultiplier(activeCar); isSkipping = false;
             
-            multBaseSize = 4.5; multTIndex = 0;
-            document.getElementById("multiplierDisplay").style.fontSize = multBaseSize + "rem";
+            multBaseSize = 4.5; multTIndex = 0; multEl.style.fontSize = multBaseSize + "rem";
             
             let maxStage = currentFinalMult === 0 ? 1 : (currentFinalMult <= 2 ? 2 : (currentFinalMult <= 10 ? 3 : (currentFinalMult <= 50 ? 4 : 5)));
             switchScreen("result-area").then(() => { runStage(1, maxStage, currentFinalMult); });
@@ -591,65 +546,75 @@
         function skipSellAnimation() { if (isSkipping) return; isSkipping = true; finishSellAnimation(currentFinalMult); }
 
         function finishSellAnimation(finalMult) {
-            document.getElementById("btnSkip").style.display = "none"; 
+            let skipBtn = document.getElementById("btnSkip");
             let progressCont = document.getElementById("sellProgressContainer");
-            progressCont.style.opacity = "0"; 
+            let statusEl = document.getElementById("statusText");
+            let resArea = document.getElementById("result-area");
+            let multEl = document.getElementById("multiplierDisplay"); 
+            let btnNext = document.getElementById("btnNextRound");
+            let coinsWon = document.getElementById("coinsWonDisplay");
 
-            setTimeout(() => {
-                progressCont.style.display = "none";
-                let statusEl = document.getElementById("statusText");
-                statusEl.classList.remove("selling");
-                let resArea = document.getElementById("result-area");
-                resArea.classList.remove("anticipation-pulse");
-                
-                let multEl = document.getElementById("multiplierDisplay"); 
-                multEl.style.display = "block";
-                multEl.classList.add("banner-enter"); 
+            skipBtn.classList.add("fade-out"); progressCont.classList.add("fade-out");
+            setTimeout(() => { skipBtn.style.display = "none"; skipBtn.classList.remove("fade-out"); progressCont.style.display = "none"; progressCont.classList.remove("fade-out"); }, 300);
 
-                if (finalMult === 0) {
-                    statusEl.innerText = "Total Loss. They walked away.";
-                    multEl.innerText = "0.00x"; multEl.className = "multiplier-display crashed";
-                    document.getElementById("coinsWonDisplay").innerHTML = `Loss: <span style="color:var(--lose);">-${formatCurrency(activeCar.invested)}</span>`;
+            statusEl.classList.remove("selling"); resArea.classList.remove("anticipation-pulse");
+
+            if (finalMult === 0) {
+                statusEl.style.opacity = "0";
+                setTimeout(() => { statusEl.innerText = "Total Loss. They walked away."; statusEl.style.opacity = "1"; }, 150);
+
+                multEl.innerText = "0.00x"; multEl.className = "multiplier-display crashed"; multEl.style.display = "block";
+                coinsWon.innerHTML = `Loss: <span style="color:var(--lose);">-${formatCurrency(activeCar.invested)}</span>`;
+                btnNext.style.display = "block";
+
+                requestAnimationFrame(() => {
+                    multEl.classList.add("fade-in"); coinsWon.classList.add("fade-in"); btnNext.classList.add("fade-in");
                     resArea.classList.add("deal-shake", "flash-red");
-                    document.getElementById("btnNextRound").style.display = "block";
-                } else {
+                });
+
+            } else {
+                setTimeout(() => {
                     statusEl.innerText = "DEAL CLOSED!"; 
+                    multEl.style.display = "block"; multEl.classList.add("banner-enter"); multEl.style.opacity = "1";
+                    coinsWon.classList.add("fade-in"); btnNext.classList.add("fade-in");
+
                     if (isSkipping) {
-                        multEl.innerText = finalMult.toFixed(2) + "x"; multEl.className = "multiplier-display won";
+                        multEl.innerText = finalMult.toFixed(2) + "x"; 
+                        multEl.className = "multiplier-display won " + getMultClass(finalMult);
                         let winnings = Number((activeCar.invested * finalMult).toFixed(2)); balance += winnings; updateBalance();
-                        document.getElementById("coinsWonDisplay").innerHTML = `Banked: <span>${formatCurrency(winnings)}</span>`;
-                        document.getElementById("btnNextRound").style.display = "block";
+                        coinsWon.innerHTML = `Banked: <span>${formatCurrency(winnings)}</span>`; btnNext.style.display = "block";
                         if (finalMult >= 10) { spawnCoins(150, "mega"); resArea.classList.add("deal-shake", "flash-gold"); }
                         else if (finalMult >= 3) { spawnCoins(60, "high"); resArea.classList.add("flash-gold"); }
                         else spawnCoins(20, "low");
                     } else {
                         animateMultiplier(finalMult, activeCar.invested);
                     }
-                }
-            }, 400); 
+                }, 150); 
+            }
         }
 
         function animateMultiplier(targetMult, invested) {
-            let multEl = document.getElementById("multiplierDisplay");
-            let resArea = document.getElementById("result-area");
-            let duration = targetMult > 50 ? 4000 : (targetMult > 10 ? 3000 : 2000);
-            let startStamp = null;
+            let multEl = document.getElementById("multiplierDisplay"); let resArea = document.getElementById("result-area");
+            let coinsWon = document.getElementById("coinsWonDisplay"); let btnNext = document.getElementById("btnNextRound");
+            let duration = targetMult > 50 ? 4000 : (targetMult > 10 ? 3000 : 2000); let startStamp = null;
             
             function tick(timestamp) {
                 if (isSkipping) return; 
                 if (!startStamp) startStamp = timestamp;
                 let progress = (timestamp - startStamp) / duration;
                 
-                let easeProgress = 1 - Math.pow(1 - progress, 3);
-                if (progress >= 1) easeProgress = 1;
-                
+                let easeProgress = 1 - Math.pow(1 - progress, 3); if (progress >= 1) easeProgress = 1;
                 let currentMult = 1.00 + ((targetMult - 1.00) * easeProgress);
                 
+                let targetClass = getMultClass(currentMult);
+                if (!multEl.classList.contains(targetClass)) {
+                    multEl.classList.remove("mult-white", "mult-green", "mult-blue", "mult-purple");
+                    multEl.classList.add(targetClass);
+                }
+
                 if (multTIndex < multThresholds.length && currentMult >= multThresholds[multTIndex]) {
-                    multBaseSize += 0.6; 
-                    multEl.style.fontSize = multBaseSize + "rem";
-                    multEl.classList.add("flash-text");
-                    setTimeout(() => multEl.classList.remove("flash-text"), 300);
+                    multBaseSize += 0.6; multEl.style.fontSize = multBaseSize + "rem";
+                    multEl.classList.add("flash-text"); setTimeout(() => multEl.classList.remove("flash-text"), 300);
                     multTIndex++;
                 }
 
@@ -658,20 +623,15 @@
                 if (progress < 1) {
                     requestAnimationFrame(tick);
                 } else {
-                    multEl.innerText = targetMult.toFixed(2) + "x"; multEl.className = "multiplier-display won";
+                    multEl.innerText = targetMult.toFixed(2) + "x"; multEl.classList.add("won");
                     let winnings = Number((invested * targetMult).toFixed(2)); balance += winnings; updateBalance();
-                    document.getElementById("coinsWonDisplay").innerHTML = `Banked: <span>${formatCurrency(winnings)}</span>`;
-                    document.getElementById("btnNextRound").style.display = "block";
                     
-                    if (targetMult < 3) {
-                        spawnCoins(20, "low");
-                    } else if (targetMult >= 3 && targetMult < 10) {
-                        spawnCoins(60, "high");
-                        resArea.classList.add("flash-gold");
-                    } else {
-                        spawnCoins(150, "mega");
-                        resArea.classList.add("deal-shake", "flash-gold");
-                    }
+                    coinsWon.innerHTML = `Banked: <span>${formatCurrency(winnings)}</span>`;
+                    btnNext.style.display = "block";
+                    
+                    if (targetMult < 3) { spawnCoins(20, "low"); } 
+                    else if (targetMult >= 3 && targetMult < 10) { spawnCoins(60, "high"); resArea.classList.add("flash-gold"); } 
+                    else { spawnCoins(150, "mega"); resArea.classList.add("deal-shake", "flash-gold"); }
                 }
             }
             requestAnimationFrame(tick);
